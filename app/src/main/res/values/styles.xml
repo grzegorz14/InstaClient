@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LoginAndRegisterTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="colorOnSurface">#000000</item>
+        <item name="colorPrimary">#C83D98</item>
+    </style>
+    <style name="NavigationBottomNavigation" parent="Widget.Design.NavigationView">
+        <item name="colorPrimary">#C83D98</item>
+        <item name="colorSecondary">#A81DA8</item>
+        <item name="backgroundColor">#FFFFFF</item>
+    </style>
+</resources>
