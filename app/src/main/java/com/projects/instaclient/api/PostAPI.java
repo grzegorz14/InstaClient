@@ -1,16 +1,20 @@
 package com.projects.instaclient.api;
 
+import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.request.AddPostDataRequest;
+import com.projects.instaclient.model.request.CreateTagRequest;
 import com.projects.instaclient.model.response.AddPostResponse;
 import com.projects.instaclient.model.response.AuthResponse;
 import com.projects.instaclient.model.response.ConfirmResponse;
+import com.projects.instaclient.model.response.CreateTagResponse;
 import com.projects.instaclient.model.response.LoginResponse;
 import com.projects.instaclient.model.response.LogoutResponse;
 import com.projects.instaclient.model.response.RegisterResponse;
 
+import java.util.ArrayList;
+
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -50,5 +54,20 @@ public interface PostAPI {
     Call<AddPostResponse> postNewPost(@Header("Authorization") String token,
                                       @Part("data") AddPostDataRequest data,
                                       @Part MultipartBody.Part file);
+
+    @GET("api/posts")
+    Call<ArrayList<Post>> getAllPosts();
+
+    @GET("api/users")
+    Call<ArrayList<User>> getAllUsers();
+
+    @GET("api/getuser/{id}")
+    Call<User> getUserById(@Path("id") String token);
+
+    @GET("api/tags/raw")
+    Call<ArrayList<String>> getAllTagsRaw();
+
+    @POST("api/tags")
+    Call<CreateTagResponse> postNewTag(@Body CreateTagRequest tagRequest);
 
 }

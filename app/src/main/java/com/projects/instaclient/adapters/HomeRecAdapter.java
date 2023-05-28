@@ -1,8 +1,6 @@
 package com.projects.instaclient.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,64 +11,71 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 import com.projects.instaclient.R;
-import com.projects.instaclient.helpers.Helpers;
+import com.projects.instaclient.databinding.PostListItemBinding;
+import com.projects.instaclient.model.Image;
 import com.projects.instaclient.model.Post;
+import com.projects.instaclient.service.RetrofitService;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeViewHolder> {
     private List<Post> list;
-    private Context context;
-    private Random random = new Random();
+    private LayoutInflater layoutInflater;
 
-    public HomeRecAdapter(List<Post> list, Context context) {
-//        List<Post> imagesLong = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
-//            imagesLong.add(list.get(random.nextInt(list.size())));
-//        }
-//        this.list = imagesLong;
+    public HomeRecAdapter(List<Post> list, LayoutInflater layoutInflater) {
         Collections.shuffle(list);
-        list.addAll(list);
         this.list = list;
-        this.context = context;
+        this.layoutInflater = layoutInflater;
     }
 
     @NonNull
     @Override
     public HomeRecAdapter.HomeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//        layoutInflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        binding = PostListItemBinding.inflate(layoutInflater, parent, false);
-//        View view = binding.getRoot();
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.post_list_item, parent, false);
+        layoutInflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        PostListItemBinding binding = PostListItemBinding.inflate(layoutInflater, parent, false);
+        View view = binding.getRoot();
 
-        return new HomeRecAdapter.HomeViewHolder(view);
+        return new HomeRecAdapter.HomeViewHolder(view, binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull HomeViewHolder holder, int position) {
         Post post = list.get(position);
 
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable drawable = context.getDrawable(post.getImage());
+        holder.binding.setPost(post);
 
-        String username = post.getUser().getFirstName() + " " + post.getUser().getLastName();
+        Image profileImage =  post.getSimpleUser().getProfileImage();
+        if (profileImage != null) {
+            Glide.with(holder.profileImageView.getContext())
+                    .load("http://" + RetrofitService.getServerHost() + "/api/" + profileImage.getUrl())
+                    .into(holder.profileImageView);
 
-        holder.profileImageView.setImageDrawable(drawable);
-        holder.usernameTextView.setText(username);
-        holder.postImageView.setImageDrawable(drawable);
-        holder.likesTextView.setText(Helpers.convertLikesToText(post.getLikes()));
-        holder.descriptionTextView.setText(post.getUser().getFirstName() + " - " + post.getDescription());
+        }
+
+        Glide.with(holder.postImageView.getContext())
+                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                .into(holder.postImageView);
+
+        String tags = "";
+        for (String tag : post.getTags()) {
+            if (!tag.isEmpty()) {
+                tags += "#" + tag + "  ";
+            }
+        }
+        holder.tagsTextView.setText(tags);
 
         holder.heartLottie.setOnClickListener(v -> {
             if (holder.isHeartClicked) {
-                holder.likesTextView.setText(Helpers.convertLikesToText(post.getLikes()));
+                post.setLikes(post.getLikes() - 1);
+                holder.binding.setPost(post);
                 holder.heartLottie.setMinAndMaxProgress(0.5f, 1f);
             }
             else {
-                holder.likesTextView.setText(Helpers.convertLikesToText(post.getLikes() + 1));
+                post.setLikes(post.getLikes() + 1);
+                holder.binding.setPost(post);
                 holder.heartLottie.setMinAndMaxProgress(0f, 0.5f);
             }
             holder.heartLottie.playAnimation();
@@ -85,24 +90,22 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
 
     public static class HomeViewHolder extends RecyclerView.ViewHolder {
 
+        private PostListItemBinding binding;
+
         private ImageView profileImageView;
         private ImageView postImageView;
-        private TextView usernameTextView;
-        private TextView likesTextView;
-        private TextView descriptionTextView;
+        private TextView tagsTextView;
         private LottieAnimationView heartLottie;
         private boolean isHeartClicked = false;
 
-        private Random random = new Random();
-
-        public HomeViewHolder(View itemView) {
+        public HomeViewHolder(View itemView, PostListItemBinding binding) {
             super(itemView);
+
+            this.binding = binding;
 
             this.profileImageView = itemView.findViewById(R.id.profileImagePostListItemImageView);
             this.postImageView = itemView.findViewById(R.id.postImagePostListItemImageView);
-            this.usernameTextView = itemView.findViewById(R.id.userNamePostListItemTextView);
-            this.likesTextView = itemView.findViewById(R.id.likesCounterPostListItemTextView);
-            this.descriptionTextView = itemView.findViewById(R.id.descriptionPostListItemTextView);
+            this.tagsTextView = itemView.findViewById(R.id.tagsPostListItemTextView);
 
             this.heartLottie = itemView.findViewById(R.id.heartLottie);
             this.heartLottie.setSpeed(3);

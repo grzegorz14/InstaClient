@@ -3,40 +3,25 @@ package com.projects.instaclient.model;
 import android.os.Build;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Post {
     private String id;
-    private User user;
-    private int image;
+    private SimpleUser simpleUser;
+    private Image image;
     private String description;
+    private String location;
+    private ArrayList<String> tags;
     private int likes;
     private String date;
 
-    public Post(User user, int image, String description) {
-        this.user = user;
-        this.image = image;
-        this.description = description;
-        this.likes = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.date = LocalDateTime.now().toString();
-        }
-    }
-
-    public Post(User user, int image, String description, int likes) {
-        this.user = user;
-        this.image = image;
-        this.description = description;
-        this.likes = likes;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.date = LocalDateTime.now().toString();
-        }
-    }
-
-    public Post(String id, User user, int image, String description, int likes) {
+    public Post(String id, SimpleUser simpleUser, Image image, String description, String location, ArrayList<String> tags, int likes) {
         this.id = id;
-        this.user = user;
+        this.simpleUser = simpleUser;
         this.image = image;
         this.description = description;
+        this.location = location;
+        this.tags = tags;
         this.likes = likes;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             this.date = LocalDateTime.now().toString();
@@ -51,19 +36,19 @@ public class Post {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
+    public SimpleUser getSimpleUser() {
+        return simpleUser;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setSimpleUser(SimpleUser simpleUser) {
+        this.simpleUser = simpleUser;
     }
 
-    public int getImage() {
+    public Image getImage() {
         return image;
     }
 
-    public void setImage(int image) {
+    public void setImage(Image image) {
         this.image = image;
     }
 
@@ -75,12 +60,29 @@ public class Post {
         this.description = description;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
+    }
+
     public int getLikes() {
         return likes;
     }
 
     public void setLikes(int likes) {
         this.likes = likes;
+        //call
     }
 
     public String getDate() {
@@ -89,5 +91,12 @@ public class Post {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getPostDescription() {
+        if (this.getDescription().isEmpty()) {
+            return "";
+        }
+        return this.getSimpleUser().getFirstName() + " - " + this.getDescription();
     }
 }

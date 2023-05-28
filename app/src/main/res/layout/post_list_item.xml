@@ -2,6 +2,13 @@
 <layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <import type="com.projects.instaclient.helpers.Helpers"/>
+        <variable
+            name="Post"
+            type="com.projects.instaclient.model.Post" />
+    </data>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -9,6 +16,7 @@
         tools:context=".view.fragments.PostFragment">
 
         <LinearLayout
+            android:layout_marginHorizontal="2dp"
             android:layout_marginVertical="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,18 +34,34 @@
                     android:contentDescription="Profile photo" />
             </androidx.cardview.widget.CardView>
 
-            <TextView
-                android:id="@+id/userNamePostListItemTextView"
-                android:textStyle="bold"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="0dp"
+            <LinearLayout
+                android:gravity="center"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="textStart"
-                android:textSize="17sp"
-                android:textColor="#000000"
-                android:fontFamily="@font/roboto_medium"
-                />
+                android:layout_height="match_parent">
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
+                    android:text="@{Post.simpleUser.fullName}"
+                    android:textSize="15sp"
+                    android:textColor="#000000"
+                    android:fontFamily="@font/roboto_medium"
+                    />
+                <TextView
+                    android:layout_marginStart="1dp"
+                    android:textStyle="normal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
+                    android:visibility="@{Post.location.isEmpty() ? View.GONE : View.VISIBLE }"
+                    android:text="@{Post.location}"
+                    android:textSize="12sp"
+                    android:textColor="#000000"
+                    android:fontFamily="@font/roboto_light"
+                    />
+            </LinearLayout>
         </LinearLayout>
 
         <ImageView
@@ -54,32 +78,49 @@
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/heartLottie"
                 app:lottie_rawRes="@raw/heart"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
+                android:layout_width="46dp"
+                android:layout_height="46dp"/>
             <TextView
-                android:id="@+id/likesCounterPostListItemTextView"
                 android:textStyle="normal"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="0dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="textStart"
+                android:text="@{Helpers.convertLikesToText(Post.getLikes())}"
                 android:textSize="15sp"
                 android:textColor="#000000"
                 android:fontFamily="@font/roboto_medium"
                 />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/descriptionPostListItemTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_marginTop="-4dp"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="15dp"
-            android:fontFamily="@font/roboto_medium"
-            android:textAlignment="textStart"
-            android:textColor="#000000"
-            android:textSize="15sp" />
+            android:layout_marginBottom="12dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:visibility="@{Post.description.isEmpty() ? View.GONE : View.VISIBLE }"
+                android:text="@{Post.getPostDescription()}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_regular"
+                android:textAlignment="textStart"
+                android:textColor="#000000"
+                android:textSize="15sp" />
 
+            <TextView
+                android:id="@+id/tagsPostListItemTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:visibility="@{Post.getTags().size() == 0 ? View.GONE : View.VISIBLE}"
+                android:fontFamily="@font/roboto_medium"
+                android:textAlignment="textStart"
+                android:textColor="@color/blue"
+                android:textSize="15sp" />
+        </LinearLayout>
     </LinearLayout>
 </layout>

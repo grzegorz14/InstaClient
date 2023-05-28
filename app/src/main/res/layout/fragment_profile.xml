@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
+        <import type="com.projects.instaclient.helpers.Helpers"/>
         <variable
             name="ProfileViewModel"
             type="com.projects.instaclient.viewmodel.ProfileViewModel" />
@@ -106,7 +107,7 @@
                         android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="16k likes"
+                        android:text="@{Helpers.convertLikesToText(ProfileViewModel.observedProfile.getLikesSum())}"
                         android:textAlignment="textStart"
                         android:textSize="17sp"
                         android:textColor="#000000"

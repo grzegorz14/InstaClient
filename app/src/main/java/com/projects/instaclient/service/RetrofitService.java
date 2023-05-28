@@ -20,7 +20,7 @@ public class RetrofitService {
     private final OkHttpClient client;
     private final Gson gson;
     private Retrofit retrofit;
-    private String serverIp = "192.168.47.8";
+    private static String serverIp = "192.168.47.8";
 
     private static final String IPV4_PATTERN = "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
 
@@ -49,7 +49,7 @@ public class RetrofitService {
 
     private void buildRetrofit() {
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + serverIp + ":3000")
+                .baseUrl("http://" + getServerHost())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build();
@@ -71,10 +71,10 @@ public class RetrofitService {
         this.authToken = authToken;
     }
 
-    public void setServerIp(String serverIp) {
+    public void setServerIp(String ip) {
         if (!validateIp(serverIp)) return;
 
-        this.serverIp = serverIp;
+        serverIp = ip;
         buildRetrofit();
     }
 
@@ -82,5 +82,9 @@ public class RetrofitService {
         return Pattern.compile(IPV4_PATTERN)
                 .matcher(ip)
                 .matches();
+    }
+
+    public static String getServerHost() {
+        return serverIp + ":3000";
     }
 }

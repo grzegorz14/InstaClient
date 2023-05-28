@@ -1,25 +1,23 @@
 package com.projects.instaclient.view.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
 import com.projects.instaclient.databinding.FragmentPostBinding;
 import com.projects.instaclient.model.Post;
+import com.projects.instaclient.service.RetrofitService;
 
 public class PostFragment extends Fragment {
 
     private FragmentPostBinding binding;
-    private ImageView imageView;
     private Post post;
 
-    public PostFragment(ImageView imageView, Post post) {
-        this.imageView = imageView;
+    public PostFragment(Post post) {
         this.post = post;
     }
 
@@ -29,7 +27,22 @@ public class PostFragment extends Fragment {
         binding = FragmentPostBinding.inflate(getLayoutInflater());
 
         binding.setPost(post);
-        binding.setImageView(imageView);
+
+        Glide.with(binding.profileImagePostImageView.getContext())
+                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                .into(binding.profileImagePostImageView);
+
+        Glide.with(binding.postImagePostImageView.getContext())
+                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                .into(binding.postImagePostImageView);
+
+        String tags = "";
+        for (String tag : post.getTags()) {
+            if (!tag.isEmpty()) {
+                tags += "#" + tag + "  ";
+            }
+        }
+        binding.tagsPostTextView.setText(tags);
 
         return binding.getRoot();
     }

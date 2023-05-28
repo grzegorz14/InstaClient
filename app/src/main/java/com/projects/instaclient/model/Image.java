@@ -4,13 +4,15 @@ public class Image {
     private String id;
     private String album;
     private String originalName;
+    private String url;
     private String lastChange;
     private ImageHistory[] history;
 
-    public Image(String id, String album, String originalName, String lastChange, ImageHistory[] history) {
+    public Image(String id, String album, String originalName, String url, String lastChange, ImageHistory[] history) {
         this.id = id;
         this.album = album;
         this.originalName = originalName;
+        this.url = url;
         this.lastChange = lastChange;
         this.history = history;
     }
@@ -37,6 +39,14 @@ public class Image {
 
     public void setOriginalName(String originalName) {
         this.originalName = originalName;
+    }
+
+    public String getUrl() {
+        return url.replace("\\", "/");
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getLastChange() {

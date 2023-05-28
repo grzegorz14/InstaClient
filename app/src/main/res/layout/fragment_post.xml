@@ -3,102 +3,139 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+        <import type="android.view.View"/>
+        <import type="com.projects.instaclient.helpers.Helpers"/>
         <variable
             name="Post"
             type="com.projects.instaclient.model.Post" />
-        <variable
-            name="ImageView"
-            type="android.widget.ImageView" />
     </data>
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context=".view.fragments.PostFragment">
-
-        <TextView
-            android:textStyle="bold"
-            android:layout_marginVertical="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/instragram"
-            android:text="Instagram"
-            android:textAlignment="center"
-            android:textColor="@color/instagram"
-            android:textSize="35sp" />
-
+        android:layout_height="match_parent">
         <LinearLayout
-            android:layout_marginVertical="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <androidx.cardview.widget.CardView
-                android:layout_marginHorizontal="10dp"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                app:cardCornerRadius="400dp">
-                <ImageView
-                    app:setDrawable="@{ImageView.drawable}"
+            android:orientation="vertical"
+            tools:context=".view.fragments.PostFragment">
+
+            <TextView
+                android:textStyle="bold"
+                android:layout_marginVertical="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/instragram"
+                android:text="Instagram"
+                android:textAlignment="center"
+                android:textColor="@color/instagram"
+                android:textSize="35sp" />
+
+            <LinearLayout
+                android:layout_marginHorizontal="2dp"
+                android:layout_marginVertical="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <androidx.cardview.widget.CardView
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    app:cardCornerRadius="400dp">
+                    <ImageView
+                        android:id="@+id/profileImagePostImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="Profile photo" />
+                </androidx.cardview.widget.CardView>
+
+                <LinearLayout
+                    android:gravity="center"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="Profile photo" />
-            </androidx.cardview.widget.CardView>
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:textStyle="bold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textStart"
+                        android:text="@{Post.simpleUser.fullName}"
+                        android:textSize="15sp"
+                        android:textColor="#000000"
+                        android:fontFamily="@font/roboto_medium"
+                        />
+                    <TextView
+                        android:layout_marginStart="1dp"
+                        android:textStyle="normal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textStart"
+                        android:visibility="@{Post.location.isEmpty() ? View.GONE : View.VISIBLE }"
+                        android:text="@{Post.location}"
+                        android:textSize="12sp"
+                        android:textColor="#000000"
+                        android:fontFamily="@font/roboto_light"
+                        />
+                </LinearLayout>
+            </LinearLayout>
 
-            <TextView
+            <ImageView
+                android:id="@+id/postImagePostImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="0dp"
-                android:fontFamily="@font/roboto_medium"
-                android:textAlignment="textStart"
-                android:text="@{Post.user.fullName}"
-                android:textColor="#000000"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:adjustViewBounds="true"/>
 
-        <ImageView
-            app:setDrawable="@{ImageView.drawable}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"/>
-
-        <LinearLayout
-            android:layout_marginHorizontal="6dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/heartLottieProfilePost"
-                app:lottie_rawRes="@raw/heart"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
-            <TextView
-                android:textStyle="normal"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="0dp"
+            <LinearLayout
+                android:layout_marginHorizontal="6dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAlignment="textStart"
-                app:setLikesText="@{Post.likes}"
-                android:textSize="15sp"
-                android:textColor="#000000"
-                android:fontFamily="@font/roboto_medium"
-                />
+                android:orientation="horizontal">
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/heartLottieProfilePost"
+                    app:lottie_rawRes="@raw/heart"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"/>
+                <TextView
+                    android:textStyle="normal"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
+                    android:text="@{Helpers.convertLikesToText(Post.getLikes())}"
+                    android:textSize="15sp"
+                    android:textColor="#000000"
+                    android:fontFamily="@font/roboto_medium"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="-4dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:visibility="@{Post.description.isEmpty() ? View.GONE : View.VISIBLE }"
+                    android:text="@{Post.getPostDescription()}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textAlignment="textStart"
+                    android:textColor="#000000"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tagsPostTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:visibility="@{Post.getTags().size() == 0 ? View.GONE : View.VISIBLE}"
+                    android:fontFamily="@font/roboto_medium"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/blue"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/descriptionPostTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginBottom="15dp"
-            android:fontFamily="@font/roboto_medium"
-            android:textAlignment="textStart"
-            android:textColor="#000000"
-            android:text="@{Post.description}"
-            android:textSize="15sp" />
-
-    </LinearLayout>
+    </ScrollView>
 </layout>

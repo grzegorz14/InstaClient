@@ -2,11 +2,7 @@ package com.projects.instaclient.view.fragments.addpost;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,16 +19,16 @@ import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentDescribeNewPostBinding;
 import com.projects.instaclient.helpers.Helpers;
-import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.request.AddPostDataRequest;
+import com.projects.instaclient.model.request.CreateTagRequest;
 import com.projects.instaclient.model.response.AddPostResponse;
+import com.projects.instaclient.model.response.CreateTagResponse;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.fragments.HomeFragment;
 import com.projects.instaclient.view.fragments.NavigationFragment;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -51,6 +47,7 @@ public class DescribeNewPostFragment extends Fragment {
     private String description = null;
     private String location = null;
     private ArrayList<String> tags = new ArrayList<>();
+    private ArrayList<String> allTags = new ArrayList<>();
 
     public DescribeNewPostFragment(Bitmap image, String imageUri) {
         this.image = image;
@@ -71,6 +68,7 @@ public class DescribeNewPostFragment extends Fragment {
         binding = FragmentDescribeNewPostBinding.inflate(getLayoutInflater());
 
         // RETRIEVE DATA
+        getAllTags();
         if (description != null) {
             binding.descriptionNewPostEditText.setText(description);
         }
@@ -104,6 +102,7 @@ public class DescribeNewPostFragment extends Fragment {
         });
 
         binding.createPostButton.setOnClickListener(v -> {
+            binding.createPostButton.setEnabled(false);
             createPost();
         });
 
@@ -115,11 +114,7 @@ public class DescribeNewPostFragment extends Fragment {
         builderSingle.setTitle("Select tag");
 
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.select_dialog_item);
-        arrayAdapter.add("love");
-        arrayAdapter.add("instagood");
-        arrayAdapter.add("fashion");
-        arrayAdapter.add("photography");
-        arrayAdapter.add("art");
+        allTags.forEach(arrayAdapter::add);
 
         builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -165,17 +160,64 @@ public class DescribeNewPostFragment extends Fragment {
         alertDialog.show();
     }
 
+    private void postNewTag(String name) {
+        Call<CreateTagResponse> call = RetrofitService.getInstance().getPostAPI().postNewTag(new CreateTagRequest(name));
+        call.enqueue(new Callback<CreateTagResponse>() {
+            @Override
+            public void onResponse(Call<CreateTagResponse> call, Response<CreateTagResponse> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    getAllTags();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreateTagResponse> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void getAllTags() {
+        Call<ArrayList<String>> call = RetrofitService.getInstance().getPostAPI().getAllTagsRaw();
+        call.enqueue(new Callback<ArrayList<String>>() {
+            @Override
+            public void onResponse(Call<ArrayList<String>> call, Response<ArrayList<String>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
+                } else {
+                    allTags = response.body();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<String>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void addTag(String tag) {
         String name = tag.toLowerCase().replaceAll(" ", "");
 
         if (tags.contains(name)) return;
+
+        if (!allTags.contains(name)) {
+            postNewTag(name);
+        }
 
         tags.add(name);
         addTagChip(name);
     }
 
     private void addTagChip(String name) {
-        Chip chip = new Chip(getContext());
+        Chip chip = (Chip) getLayoutInflater().inflate(R.layout.tag_chip, null, false);
         chip.setText(name);
         chip.setOnClickListener(v -> {
             tags.remove(name);

@@ -1,15 +1,22 @@
 package com.projects.instaclient.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.projects.instaclient.R;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
+import com.projects.instaclient.service.RetrofitService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PostViewModel extends ViewModel {
 
@@ -18,7 +25,7 @@ public class PostViewModel extends ViewModel {
 
     public PostViewModel() {
         this.postsMutableLiveData = new MutableLiveData<>();
-        this.posts = getInitialPosts();
+        getPosts();
     }
 
     public MutableLiveData<List<Post>> getObservedPosts() {
@@ -34,27 +41,49 @@ public class PostViewModel extends ViewModel {
         this.postsMutableLiveData.setValue(this.posts);
     }
 
-    private List<Post> getInitialPosts() {
-        User userZendaya = new User("Zendaya", "", "acarano@gmail.com", "Qwerty123!", null, null);
-        User userTomasz = new User("Tomasz", "Marczyński", "marczyńskiKolarz@gmail.com", "Qwerty123!", null, null);
-        User userSergio = new User("Sergio", "Calvo Miniatures", "sgminiatures@gmail.com", "Qwerty123!", null, null);
-        User userHbo = new User("HBO", "Poland", "hbo@gmail.com", "Qwerty123!", null, null);
+    private void getPosts() {
+        Call<ArrayList<Post>> call = RetrofitService.getInstance().getPostAPI().getAllPosts();
 
-        return new ArrayList<>(Arrays.asList(
-                new Post(userZendaya, R.drawable.z1, "session session session", 35022),
-                new Post(userZendaya, R.drawable.z2, "good vibes", 24211),
-                new Post(userZendaya, R.drawable.z3, "OMG! Dune part 1 is finally out! Can't wait to see the final effect in the cinema :)))", 11943),
+        call.enqueue(new Callback<ArrayList<Post>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Post>> call, Response<ArrayList<Post>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                } else {
+                    posts = response.body();
+                    setupPosts();
+                }
+            }
 
-                new Post(userTomasz, R.drawable.initial_bike1, "This S-WORKS is extremely stiff! And it looks gorgeous...", 147),
-                new Post(userTomasz, R.drawable.initial_bike2, "Pinarello Dogma F in the most beautiful color option", 64),
-                new Post(userTomasz, R.drawable.initial_bike3, "TIME MACHINE 01:00:00", 23),
-
-                new Post(userHbo, R.drawable.initial_dune, "Can't wait? It's worth waiting for...", 7544),
-                new Post(userHbo, R.drawable.initial_euphoria, "With extraordinary music of Labrinth, check it out on Spotify", 3523),
-                new Post(userHbo, R.drawable.initial_hotd, "TOMORROW 17:00", 5643),
-
-                new Post(userSergio, R.drawable.initial_miniature1, "For sell only for 1000$ :)", 632),
-                new Post(userSergio, R.drawable.initial_miniature2, "Any tips what to do better?",153),
-                new Post(userSergio, R.drawable.initial_miniature3, "5 hours of hard work", 836)));
+            @Override
+            public void onFailure(Call<ArrayList<Post>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+            }
+        });
     }
+
+    // currently on server
+//    private List<Post> getInitialPosts() {
+//        User userZendaya = new User("Zendaya", "", "acarano@gmail.com", "Qwerty123!", null, null);
+//        User userTomasz = new User("Tomasz", "Marczyński", "marczyńskiKolarz@gmail.com", "Qwerty123!", null, null);
+//        User userSergio = new User("Sergio", "Calvo Miniatures", "sgminiatures@gmail.com", "Qwerty123!", null, null);
+//        User userHbo = new User("HBO", "Poland", "hbo@gmail.com", "Qwerty123!", null, null);
+//
+//        return new ArrayList<>(Arrays.asList(
+//                new Post(userZendaya, R.drawable.z1, "session session session", 35022),
+//                new Post(userZendaya, R.drawable.z2, "good vibes", 24211),
+//                new Post(userZendaya, R.drawable.z3, "OMG! Dune part 1 is finally out! Can't wait to see the final effect in the cinema :)))", 11943),
+//
+//                new Post(userTomasz, R.drawable.initial_bike1, "This S-WORKS is extremely stiff! And it looks gorgeous...", 147),
+//                new Post(userTomasz, R.drawable.initial_bike2, "Pinarello Dogma F in the most beautiful color option", 64),
+//                new Post(userTomasz, R.drawable.initial_bike3, "TIME MACHINE 01:00:00", 23),
+//
+//                new Post(userHbo, R.drawable.initial_dune, "Can't wait? It's worth waiting for...", 7544),
+//                new Post(userHbo, R.drawable.initial_euphoria, "With extraordinary music of Labrinth, check it out on Spotify", 3523),
+//                new Post(userHbo, R.drawable.initial_hotd, "TOMORROW 17:00", 5643),
+//
+//                new Post(userSergio, R.drawable.initial_miniature1, "For sell only for 1000$ :)", 632),
+//                new Post(userSergio, R.drawable.initial_miniature2, "Any tips what to do better?",153),
+//                new Post(userSergio, R.drawable.initial_miniature3, "5 hours of hard work", 836)));
+//    }
 }

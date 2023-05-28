@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.helpers.Helpers;
+import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.LoginResponse;
 import com.projects.instaclient.model.response.LogoutResponse;
@@ -30,7 +31,6 @@ public class ProfileViewModel extends ViewModel {
 
     public ProfileViewModel() {
         this.profileMutableLiveData = new MutableLiveData<>();
-        getProfile();
     }
 
     public MutableLiveData<User> getObservedProfile() {
@@ -158,9 +158,4 @@ public class ProfileViewModel extends ViewModel {
             }
         });
     }
-
-
-//    public int getLikesSum() {
-//        this.profile
-//    }
 }

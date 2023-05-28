@@ -1,6 +1,7 @@
 package com.projects.instaclient.model;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class User {
     private String firstName;
@@ -8,9 +9,9 @@ public class User {
     private String email;
     private String password;
     private File profileImage;
-    private Post[] posts;
+    private ArrayList<Post> posts;
 
-    public User(String firstName, String lastName, String email, String password, File profileImage, Post[] posts) {
+    public User(String firstName, String lastName, String email, String password, File profileImage, ArrayList<Post> posts) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -76,12 +77,19 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public Post[] getPosts() {
+    public ArrayList<Post> getPosts() {
         return posts;
     }
 
-    public void setPosts(Post[] posts) {
+    public void setPosts(ArrayList<Post> posts) {
         this.posts = posts;
+    }
+
+    public int getLikesSum() {
+        if (this.getPosts() != null && this.getPosts().size() > 0) {
+            return this.getPosts().stream().mapToInt(Post::getLikes).sum();
+        }
+        return 0;
     }
 
     @Override

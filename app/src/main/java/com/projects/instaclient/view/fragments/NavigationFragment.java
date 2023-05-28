@@ -2,20 +2,15 @@ package com.projects.instaclient.view.fragments;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.projects.instaclient.R;
+import androidx.fragment.app.Fragment;
+
 import com.projects.instaclient.databinding.FragmentNavigationBinding;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.view.fragments.addpost.AddPostCameraFragment;
-import com.projects.instaclient.viewmodel.PostViewModel;
-import com.projects.instaclient.viewmodel.ProfileViewModel;
 
 public class NavigationFragment extends Fragment {
 

@@ -1,14 +1,6 @@
 package com.projects.instaclient.view.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,19 +8,19 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import com.projects.instaclient.R;
 import com.projects.instaclient.adapters.ProfileRecAdapter;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentProfileBinding;
-import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.AuthResponse;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.viewmodel.ProfileViewModel;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,23 +29,12 @@ import retrofit2.Response;
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
-
     private ProfileViewModel profileViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(getLayoutInflater());
-
-        // SET RECYCLER VIEW
-        RecyclerView recyclerView = binding.imagesRecyclerView;
-
-        StaggeredGridLayoutManager staggeredGridLayoutManager
-                = new StaggeredGridLayoutManager(3, LinearLayout.VERTICAL);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-
-        ProfileRecAdapter adapter = new ProfileRecAdapter(getInitialPosts(), binding.profileFragment.getContext(), getActivity());
-        recyclerView.setAdapter(adapter);
 
         // ON CLICKS
         binding.settingsImageView.setOnClickListener(v -> {
@@ -65,6 +46,44 @@ public class ProfileFragment extends Fragment {
                 .get(ProfileViewModel.class);
         binding.setProfileViewModel(profileViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+
+        RetrofitService retrofitService = RetrofitService.getInstance();
+        PostAPI postAPI = retrofitService.getPostAPI();
+        Call<User> call = postAPI.getProfile(retrofitService.getAuthToken());
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                }
+                else {
+                    User responseUser = response.body();
+                    profileViewModel.setupProfile(responseUser);
+
+                    int postsNumber = responseUser.getPosts().size();
+                    if (postsNumber == 0) {
+                        return;
+                    }
+
+                    // SET USER POSTS
+                    int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
+                    ProfileRecAdapter adapter = new ProfileRecAdapter(responseUser.getPosts(), getLayoutInflater(), getActivity(), cols);
+
+                    // SET RECYCLER VIEW
+                    RecyclerView recyclerView = binding.imagesRecyclerView;
+
+                    StaggeredGridLayoutManager staggeredGridLayoutManager
+                            = new StaggeredGridLayoutManager(cols, LinearLayout.VERTICAL);
+                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                    recyclerView.setAdapter(adapter);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+            }
+        });
 
         return binding.getRoot();
     }
@@ -98,18 +117,5 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    private List<Post> getInitialPosts() {
-        User basicUser = new User("Amelia", "Cardano", "acarano@gmail.com", "Qwerty123!", null, null);
-
-        return new ArrayList<>(Arrays.asList(
-                new Post(basicUser, R.drawable.z1, "Happy holiday!"),
-                new Post(basicUser, R.drawable.z2, "good vibes"),
-                new Post(basicUser, R.drawable.z3, "There is no beauty without some strangeness..."),
-                new Post(basicUser, R.drawable.z4, "Euphoria"),
-                new Post(basicUser, R.drawable.z5, ":)"),
-                new Post(basicUser, R.drawable.z6, "Any tips and hits?"),
-                new Post(basicUser, R.drawable.z7, "France trip with family and friends")));
     }
 }

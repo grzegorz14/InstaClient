@@ -1,13 +1,12 @@
 package com.projects.instaclient.model.response;
 
 import com.projects.instaclient.model.Post;
-import com.projects.instaclient.model.PostFINAL;
 
 public class AddPostResponse {
     private boolean success;
-    private PostFINAL newPost;
+    private Post newPost;
 
-    public AddPostResponse(boolean success, PostFINAL newPost) {
+    public AddPostResponse(boolean success, Post newPost) {
         this.success = success;
         this.newPost = newPost;
     }
@@ -20,11 +19,11 @@ public class AddPostResponse {
         this.success = success;
     }
 
-    public PostFINAL getNewPost() {
+    public Post getNewPost() {
         return newPost;
     }
 
-    public void setNewPost(PostFINAL newPost) {
+    public void setNewPost(Post newPost) {
         this.newPost = newPost;
     }
 }
