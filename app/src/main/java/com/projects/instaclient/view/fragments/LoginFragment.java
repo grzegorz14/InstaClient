@@ -1,7 +1,9 @@
 package com.projects.instaclient.view.fragments;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -10,12 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentLoginBinding;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.User;
-import com.projects.instaclient.model.response.LoginResponse;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 
 import retrofit2.Call;
@@ -39,9 +42,9 @@ public class LoginFragment extends Fragment {
             Helpers.replaceMainFragment(getParentFragmentManager(), new RegisterFragment());
         });
 
-        // bypass only for testing without server
-        binding.instagramBypassTextView.setOnClickListener(v -> {
-            Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment());
+        // set server ip from application level - hidden function
+        binding.instagramSetServerIpTextView.setOnClickListener(v -> {
+            setServerIp();
         });
 
         return binding.getRoot();
@@ -54,28 +57,57 @@ public class LoginFragment extends Fragment {
 
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();
-        Call<LoginResponse> call = postAPI.postLoginData(userData);
+        Call<ResponseWrapper<String>> call = postAPI.postLoginData(userData);
 
-        call.enqueue(new Callback<LoginResponse>() {
+        call.enqueue(new Callback<ResponseWrapper<String>>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<ResponseWrapper<String>> call, Response<ResponseWrapper<String>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 }
                 else {
-                    String authToken = response.body().getToken();
-                    retrofitService.setAuthToken(authToken);
-
-                    Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment());
+                    if (response.body().getSuccess()) {
+                        String authToken = response.body().getData();
+                        retrofitService.setAuthToken(authToken);
+                        Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment());
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<String>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void setServerIp() {
+        LayoutInflater li = LayoutInflater.from(getContext());
+        View promptsView = li.inflate(R.layout.edit_text_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+
+        alertDialogBuilder.setView(promptsView);
+
+        TextInputLayout userInput = promptsView.findViewById(R.id.alertTextInput);
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        String url = userInput.getEditText().getText().toString();
+                        RetrofitService.getInstance().setServerIp(url);
+                        Toast.makeText(getContext(), "Url set: "+ url, Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, id) -> dialog.cancel());
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 }

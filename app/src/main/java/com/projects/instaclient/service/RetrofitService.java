@@ -20,7 +20,7 @@ public class RetrofitService {
     private final OkHttpClient client;
     private final Gson gson;
     private Retrofit retrofit;
-    private static String serverIp = "192.168.47.8";
+    private static String serverIp = "192.168.119.8";
 
     private static final String IPV4_PATTERN = "^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.(?!$)|$)){4}$";
 

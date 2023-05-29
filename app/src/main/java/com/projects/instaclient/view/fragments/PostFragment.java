@@ -29,7 +29,7 @@ public class PostFragment extends Fragment {
         binding.setPost(post);
 
         Glide.with(binding.profileImagePostImageView.getContext())
-                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                .load("http://" + RetrofitService.getServerHost() + "/api/uploads/" + post.getSimpleUser().getId() + "/profile_image.jpg")
                 .into(binding.profileImagePostImageView);
 
         Glide.with(binding.postImagePostImageView.getContext())

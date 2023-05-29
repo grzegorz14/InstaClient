@@ -17,8 +17,9 @@ import com.projects.instaclient.R;
 import com.projects.instaclient.adapters.ProfileRecAdapter;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentProfileBinding;
+import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.User;
-import com.projects.instaclient.model.response.AuthResponse;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.viewmodel.ProfileViewModel;
 
@@ -49,38 +50,45 @@ public class ProfileFragment extends Fragment {
 
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();
-        Call<User> call = postAPI.getProfile(retrofitService.getAuthToken());
-        call.enqueue(new Callback<User>() {
+        Call<ResponseWrapper<User>> call = postAPI.getProfile(retrofitService.getAuthToken());
+        call.enqueue(new Callback<ResponseWrapper<User>>() {
             @Override
-            public void onResponse(Call<User> call, Response<User> response) {
+            public void onResponse(Call<ResponseWrapper<User>> call, Response<ResponseWrapper<User>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                 }
                 else {
-                    User responseUser = response.body();
-                    profileViewModel.setupProfile(responseUser);
+                    if (response.body().getSuccess()) {
+                        User responseUser = response.body().getData();
+                        profileViewModel.setupProfile(responseUser);
 
-                    int postsNumber = responseUser.getPosts().size();
-                    if (postsNumber == 0) {
-                        return;
+                        int postsNumber = responseUser.getPosts().size();
+                        if (postsNumber == 0) {
+                            return;
+                        }
+
+                        // GET POSTS
+//
+//                        // SET USER POSTS
+//                        int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
+//                        ProfileRecAdapter adapter = new ProfileRecAdapter(responseUser.getPosts(), getLayoutInflater(), getActivity(), cols);
+//
+//                        // SET RECYCLER VIEW
+//                        RecyclerView recyclerView = binding.imagesRecyclerView;
+//
+//                        StaggeredGridLayoutManager staggeredGridLayoutManager
+//                                = new StaggeredGridLayoutManager(cols, LinearLayout.VERTICAL);
+//                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+//                        recyclerView.setAdapter(adapter);
                     }
-
-                    // SET USER POSTS
-                    int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
-                    ProfileRecAdapter adapter = new ProfileRecAdapter(responseUser.getPosts(), getLayoutInflater(), getActivity(), cols);
-
-                    // SET RECYCLER VIEW
-                    RecyclerView recyclerView = binding.imagesRecyclerView;
-
-                    StaggeredGridLayoutManager staggeredGridLayoutManager
-                            = new StaggeredGridLayoutManager(cols, LinearLayout.VERTICAL);
-                    recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                    recyclerView.setAdapter(adapter);
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<User> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<User>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
             }
         });
@@ -92,27 +100,32 @@ public class ProfileFragment extends Fragment {
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();
 
-        Call<AuthResponse> call = postAPI.postAuthorization(retrofitService.getAuthToken());
+        Call<ResponseWrapper<String>> call = postAPI.postAuthorization(retrofitService.getAuthToken());
 
-        call.enqueue(new Callback<AuthResponse>() {
+        call.enqueue(new Callback<ResponseWrapper<String>>() {
             @Override
-            public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+            public void onResponse(Call<ResponseWrapper<String>> call, Response<ResponseWrapper<String>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 }
                 else {
-                    Toast.makeText(getContext(), "Authorization successful", Toast.LENGTH_SHORT).show();
+                    if (response.body().getSuccess()) {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
 
-                    getActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.mainFrameLayout, new SettingsFragment(profileViewModel))
-                            .commit();
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.mainFrameLayout, new SettingsFragment(profileViewModel))
+                                .commit();
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<AuthResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<String>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }

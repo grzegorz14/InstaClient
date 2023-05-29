@@ -12,13 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentRegisterBinding;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.User;
-import com.projects.instaclient.model.response.ConfirmResponse;
 import com.projects.instaclient.model.response.RegisterResponse;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 
 import retrofit2.Call;
@@ -55,37 +54,42 @@ public class RegisterFragment extends Fragment {
                 null);
 
         PostAPI postAPI = RetrofitService.getInstance().getPostAPI();
-        Call<RegisterResponse> call = postAPI.postRegisterData(newUser);
+        Call<ResponseWrapper<RegisterResponse>> call = postAPI.postRegisterData(newUser);
 
-        call.enqueue(new Callback<RegisterResponse>() {
+        call.enqueue(new Callback<ResponseWrapper<RegisterResponse>>() {
             @Override
-            public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
+            public void onResponse(Call<ResponseWrapper<RegisterResponse>> call, Response<ResponseWrapper<RegisterResponse>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 }
                 else {
-                    String confirmToken = response.body().getToken();
+                    if (response.body().getSuccess()) {
+                        String confirmToken = response.body().getData().getToken();
 
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
-                    alertDialogBuilder
-                            .setCancelable(false)
-                            .setTitle("Confirm account")
-                            .setMessage("App will send GET with received token to address: " + RetrofitService.getInstance().getServerIp())
-                            .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    sendConfirm(confirmToken);
-                                }
-                            });
+                        alertDialogBuilder
+                                .setCancelable(false)
+                                .setTitle("Confirm account")
+                                .setMessage("App will send GET with received token to address: " + RetrofitService.getInstance().getServerIp())
+                                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        sendConfirm(confirmToken);
+                                    }
+                                });
 
-                    AlertDialog alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<RegisterResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<RegisterResponse>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -95,21 +99,26 @@ public class RegisterFragment extends Fragment {
     private void sendConfirm(String token) {
         PostAPI postAPI = RetrofitService.getInstance().getPostAPI();
 
-        Call<ConfirmResponse> call = postAPI.getConfirmAccount(token);
-        call.enqueue(new Callback<ConfirmResponse>() {
+        Call<ResponseWrapper<User>> call = postAPI.getConfirmAccount(token);
+        call.enqueue(new Callback<ResponseWrapper<User>>() {
             @Override
-            public void onResponse(Call<ConfirmResponse> call, Response<ConfirmResponse> response) {
+            public void onResponse(Call<ResponseWrapper<User>> call, Response<ResponseWrapper<User>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    Helpers.replaceMainFragment(getParentFragmentManager(), new LoginFragment());
+                    if (response.body().getSuccess()) {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                        Helpers.replaceMainFragment(getParentFragmentManager(), new LoginFragment());
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ConfirmResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<User>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }

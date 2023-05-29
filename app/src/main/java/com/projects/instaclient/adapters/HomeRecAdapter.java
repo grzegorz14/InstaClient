@@ -47,13 +47,10 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
 
         holder.binding.setPost(post);
 
-        Image profileImage =  post.getSimpleUser().getProfileImage();
-        if (profileImage != null) {
-            Glide.with(holder.profileImageView.getContext())
-                    .load("http://" + RetrofitService.getServerHost() + "/api/" + profileImage.getUrl())
-                    .into(holder.profileImageView);
-
-        }
+        Glide.with(holder.profileImageView.getContext())
+                .load("http://" + RetrofitService.getServerHost() + "/api/uploads/" + post.getSimpleUser().getId() + "/profile_image.jpg")
+                .error(R.drawable.profile)
+                .into(holder.profileImageView);
 
         Glide.with(holder.postImageView.getContext())
                 .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())

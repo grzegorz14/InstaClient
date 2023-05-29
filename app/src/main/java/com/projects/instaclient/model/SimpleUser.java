@@ -8,14 +8,12 @@ public class SimpleUser {
     private String firstName;
     private String lastName;
     private String email;
-    private Image profileImage;
 
-    public SimpleUser(String id, String firstName, String lastName, String email, Image profileImage) {
+    public SimpleUser(String id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.profileImage = profileImage;
     }
 
     public String getId() {
@@ -52,13 +50,5 @@ public class SimpleUser {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Image getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(Image profileImage) {
-        this.profileImage = profileImage;
     }
 }

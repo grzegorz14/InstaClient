@@ -9,9 +9,9 @@ public class User {
     private String email;
     private String password;
     private File profileImage;
-    private ArrayList<Post> posts;
+    private ArrayList<Integer> posts;
 
-    public User(String firstName, String lastName, String email, String password, File profileImage, ArrayList<Post> posts) {
+    public User(String firstName, String lastName, String email, String password, File profileImage, ArrayList<Integer> posts) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -77,18 +77,18 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public ArrayList<Post> getPosts() {
+    public ArrayList<Integer> getPosts() {
         return posts;
     }
 
-    public void setPosts(ArrayList<Post> posts) {
+    public void setPosts(ArrayList<Integer> posts) {
         this.posts = posts;
     }
 
     public int getLikesSum() {
-        if (this.getPosts() != null && this.getPosts().size() > 0) {
-            return this.getPosts().stream().mapToInt(Post::getLikes).sum();
-        }
+//        if (this.getPosts() != null && this.getPosts().size() > 0) {
+//            return this.getPosts().stream().mapToInt(Post::getLikes).sum();
+//        }
         return 0;
     }
 
