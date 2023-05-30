@@ -104,10 +104,10 @@
                         android:layout_marginTop="2dp"
                         app:tint="@color/instagram" />
                     <TextView
+                        android:id="@+id/profileLikesSumTextView"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{Helpers.convertLikesToText(ProfileViewModel.observedProfile.getLikesSum())}"
                         android:textAlignment="textStart"
                         android:textSize="17sp"
                         android:textColor="#000000"

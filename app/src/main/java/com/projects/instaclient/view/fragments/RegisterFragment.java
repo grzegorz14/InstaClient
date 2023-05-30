@@ -72,7 +72,7 @@ public class RegisterFragment extends Fragment {
                         alertDialogBuilder
                                 .setCancelable(false)
                                 .setTitle("Confirm account")
-                                .setMessage("App will send GET with received token to address: " + RetrofitService.getInstance().getServerIp())
+                                .setMessage("App will send GET with received token to address: " + RetrofitService.getServerIp())
                                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         sendConfirm(confirmToken);

@@ -1,13 +1,19 @@
 package com.projects.instaclient.viewmodel;
 
 import android.util.Log;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.projects.instaclient.R;
+import com.projects.instaclient.adapters.HomeRecAdapter;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 
 import java.util.ArrayList;
@@ -42,21 +48,23 @@ public class PostViewModel extends ViewModel {
     }
 
     private void getPosts() {
-        Call<ArrayList<Post>> call = RetrofitService.getInstance().getPostAPI().getAllPosts();
+        Call<ResponseWrapper<ArrayList<Post>>> call = RetrofitService.getInstance().getPostAPI().getAllPosts();
 
-        call.enqueue(new Callback<ArrayList<Post>>() {
+        call.enqueue(new Callback<ResponseWrapper<ArrayList<Post>>>() {
             @Override
-            public void onResponse(Call<ArrayList<Post>> call, Response<ArrayList<Post>> response) {
+            public void onResponse(Call<ResponseWrapper<ArrayList<Post>>> call, Response<ResponseWrapper<ArrayList<Post>>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                 } else {
-                    posts = response.body();
-                    setupPosts();
+                    if (response.body().getSuccess()) {
+                        posts = response.body().getData();
+                        setupPosts();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Post>> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<ArrayList<Post>>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
             }
         });

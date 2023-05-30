@@ -4,8 +4,6 @@ import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.request.AddPostDataRequest;
 import com.projects.instaclient.model.request.CreateTagRequest;
-import com.projects.instaclient.model.response.AddPostResponse;
-import com.projects.instaclient.model.response.CreateTagResponse;
 import com.projects.instaclient.model.response.RegisterResponse;
 import com.projects.instaclient.model.response.ResponseWrapper;
 
@@ -48,12 +46,15 @@ public interface PostAPI {
 
     @Multipart
     @POST("api/posts")
-    Call<AddPostResponse> postNewPost(@Header("Authorization") String token,
+    Call<ResponseWrapper<Post>> postNewPost(@Header("Authorization") String token,
                                       @Part("data") AddPostDataRequest data,
                                       @Part MultipartBody.Part file);
 
     @GET("api/posts")
-    Call<ArrayList<Post>> getAllPosts();
+    Call<ResponseWrapper<ArrayList<Post>>> getAllPosts();
+
+    @GET("api/posts/user/{id}")
+    Call<ResponseWrapper<ArrayList<Post>>> getAllPostOfUserById(@Path("id") String id);
 
     @GET("api/users")
     Call<ResponseWrapper<ArrayList<User>>> getAllUsers();
@@ -62,9 +63,9 @@ public interface PostAPI {
     Call<ResponseWrapper<User>> getUserById(@Path("id") String token);
 
     @GET("api/tags/raw")
-    Call<ArrayList<String>> getAllTagsRaw();
+    Call<ResponseWrapper<ArrayList<String>>> getAllTagsRaw();
 
     @POST("api/tags")
-    Call<CreateTagResponse> postNewTag(@Body CreateTagRequest tagRequest);
+    Call<ResponseWrapper<String>> postNewTag(@Body CreateTagRequest tagRequest);
 
 }

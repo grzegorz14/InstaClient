@@ -14,14 +14,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.projects.instaclient.R;
+import com.projects.instaclient.adapters.HomeRecAdapter;
 import com.projects.instaclient.adapters.ProfileRecAdapter;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentProfileBinding;
 import com.projects.instaclient.helpers.Helpers;
+import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.viewmodel.ProfileViewModel;
+
+import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -68,18 +73,7 @@ public class ProfileFragment extends Fragment {
                         }
 
                         // GET POSTS
-//
-//                        // SET USER POSTS
-//                        int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
-//                        ProfileRecAdapter adapter = new ProfileRecAdapter(responseUser.getPosts(), getLayoutInflater(), getActivity(), cols);
-//
-//                        // SET RECYCLER VIEW
-//                        RecyclerView recyclerView = binding.imagesRecyclerView;
-//
-//                        StaggeredGridLayoutManager staggeredGridLayoutManager
-//                                = new StaggeredGridLayoutManager(cols, LinearLayout.VERTICAL);
-//                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-//                        recyclerView.setAdapter(adapter);
+                        getPostsOfUser(responseUser.getId(), postsNumber);
                     }
                     else {
                         Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
@@ -94,6 +88,46 @@ public class ProfileFragment extends Fragment {
         });
 
         return binding.getRoot();
+    }
+
+    private void getPostsOfUser(String userId, int postsNumber) {
+        Call<ResponseWrapper<ArrayList<Post>>> call = RetrofitService.getInstance().getPostAPI().getAllPostOfUserById(userId);
+        call.enqueue(new Callback<ResponseWrapper<ArrayList<Post>>>() {
+            @Override
+            public void onResponse(Call<ResponseWrapper<ArrayList<Post>>> call, Response<ResponseWrapper<ArrayList<Post>>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
+                } else {
+                    if (response.body().getSuccess()) {
+                        // SET USER POSTS
+                        int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
+                        ProfileRecAdapter adapter = new ProfileRecAdapter(response.body().getData(), getLayoutInflater(), getActivity(), cols);
+
+                        // SET RECYCLER VIEW
+                        RecyclerView recyclerView = binding.imagesRecyclerView;
+
+                        StaggeredGridLayoutManager staggeredGridLayoutManager
+                                = new StaggeredGridLayoutManager(cols, LinearLayout.VERTICAL);
+                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                        recyclerView.setAdapter(adapter);
+
+                        // SET LIKES SUM
+                        int likes = response.body().getData().stream().flatMapToInt(post -> IntStream.of(post.getLikes())).sum();
+                        binding.profileLikesSumTextView.setText(Helpers.convertLikesToText(likes));
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseWrapper<ArrayList<Post>>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void authAndGoToSettingsFragment() {

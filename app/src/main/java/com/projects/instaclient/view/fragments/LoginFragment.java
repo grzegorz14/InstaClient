@@ -10,8 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
@@ -95,6 +97,7 @@ public class LoginFragment extends Fragment {
         alertDialogBuilder.setView(promptsView);
 
         TextInputLayout userInput = promptsView.findViewById(R.id.alertTextInput);
+        userInput.getEditText().setText(RetrofitService.getServerIp());
 
         alertDialogBuilder
                 .setCancelable(false)

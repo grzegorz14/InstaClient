@@ -59,7 +59,7 @@ public class RetrofitService {
         return retrofit.create(PostAPI.class);
     }
 
-    public String getServerIp() {
+    public static String getServerIp() {
         return serverIp;
     }
 

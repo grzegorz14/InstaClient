@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.projects.instaclient.adapters.HomeRecAdapter;
 import com.projects.instaclient.databinding.FragmentHomeBinding;
+import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.Post;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 
 import java.util.ArrayList;
@@ -32,29 +34,34 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(getLayoutInflater());
 
-        // SET RECYCLER VIEW
-        RecyclerView recyclerView = binding.postsRecyclerView;
-
-        StaggeredGridLayoutManager staggeredGridLayoutManager
-                = new StaggeredGridLayoutManager(1, LinearLayout.VERTICAL);
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-
         // GET POSTS FROM SERVER
-        Call<ArrayList<Post>> call = RetrofitService.getInstance().getPostAPI().getAllPosts();
-        call.enqueue(new Callback<ArrayList<Post>>() {
+        Call<ResponseWrapper<ArrayList<Post>>> call = RetrofitService.getInstance().getPostAPI().getAllPosts();
+        call.enqueue(new Callback<ResponseWrapper<ArrayList<Post>>>() {
             @Override
-            public void onResponse(Call<ArrayList<Post>> call, Response<ArrayList<Post>> response) {
+            public void onResponse(Call<ResponseWrapper<ArrayList<Post>>> call, Response<ResponseWrapper<ArrayList<Post>>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
-                    HomeRecAdapter adapter = new HomeRecAdapter(response.body(), getLayoutInflater());
-                    recyclerView.setAdapter(adapter);
+                    if (response.body().getSuccess()) {
+                        HomeRecAdapter adapter = new HomeRecAdapter(response.body().getData(), getLayoutInflater());
+
+                        // SET RECYCLER VIEW
+                        RecyclerView recyclerView = binding.postsRecyclerView;
+
+                        StaggeredGridLayoutManager staggeredGridLayoutManager
+                                = new StaggeredGridLayoutManager(1, LinearLayout.VERTICAL);
+                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                        recyclerView.setAdapter(adapter);
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Post>> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<ArrayList<Post>>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }

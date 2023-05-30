@@ -4,12 +4,23 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class User {
+    private String id = "";
     private String firstName;
     private String lastName;
     private String email;
     private String password;
     private File profileImage;
-    private ArrayList<Integer> posts;
+    private ArrayList<Long> posts;
+
+    public User(String id, String firstName, String lastName, String email, String password, File profileImage, ArrayList<Long> posts) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.email = email;
+        this.password = password;
+    }
 
     public User(String firstName, String lastName, String email, String password, File profileImage, ArrayList<Integer> posts) {
         this.firstName = firstName;
@@ -31,6 +42,14 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFullName() {
@@ -77,19 +96,12 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    public ArrayList<Integer> getPosts() {
+    public ArrayList<Long> getPosts() {
         return posts;
     }
 
-    public void setPosts(ArrayList<Integer> posts) {
+    public void setPosts(ArrayList<Long> posts) {
         this.posts = posts;
-    }
-
-    public int getLikesSum() {
-//        if (this.getPosts() != null && this.getPosts().size() > 0) {
-//            return this.getPosts().stream().mapToInt(Post::getLikes).sum();
-//        }
-        return 0;
     }
 
     @Override

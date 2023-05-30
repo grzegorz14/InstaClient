@@ -19,10 +19,10 @@ import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentDescribeNewPostBinding;
 import com.projects.instaclient.helpers.Helpers;
+import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.request.AddPostDataRequest;
 import com.projects.instaclient.model.request.CreateTagRequest;
-import com.projects.instaclient.model.response.AddPostResponse;
-import com.projects.instaclient.model.response.CreateTagResponse;
+import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.fragments.HomeFragment;
 import com.projects.instaclient.view.fragments.NavigationFragment;
@@ -161,21 +161,23 @@ public class DescribeNewPostFragment extends Fragment {
     }
 
     private void postNewTag(String name) {
-        Call<CreateTagResponse> call = RetrofitService.getInstance().getPostAPI().postNewTag(new CreateTagRequest(name));
-        call.enqueue(new Callback<CreateTagResponse>() {
+        Call<ResponseWrapper<String>> call = RetrofitService.getInstance().getPostAPI().postNewTag(new CreateTagRequest(name));
+        call.enqueue(new Callback<ResponseWrapper<String>>() {
             @Override
-            public void onResponse(Call<CreateTagResponse> call, Response<CreateTagResponse> response) {
+            public void onResponse(Call<ResponseWrapper<String>> call, Response<ResponseWrapper<String>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    getAllTags();
+                    if (response.body().getSuccess()) {
+                        getAllTags();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<CreateTagResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<String>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -183,20 +185,25 @@ public class DescribeNewPostFragment extends Fragment {
     }
 
     private void getAllTags() {
-        Call<ArrayList<String>> call = RetrofitService.getInstance().getPostAPI().getAllTagsRaw();
-        call.enqueue(new Callback<ArrayList<String>>() {
+        Call<ResponseWrapper<ArrayList<String>>> call = RetrofitService.getInstance().getPostAPI().getAllTagsRaw();
+        call.enqueue(new Callback<ResponseWrapper<ArrayList<String>>>() {
             @Override
-            public void onResponse(Call<ArrayList<String>> call, Response<ArrayList<String>> response) {
+            public void onResponse(Call<ResponseWrapper<ArrayList<String>>> call, Response<ResponseWrapper<ArrayList<String>>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
-                    allTags = response.body();
+                    if (response.body().getSuccess()) {
+                        allTags = response.body().getData();
+                    }
+                    else {
+                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<String>> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<ArrayList<String>>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -240,24 +247,24 @@ public class DescribeNewPostFragment extends Fragment {
 
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();
-        Call<AddPostResponse> call = postAPI.postNewPost(retrofitService.getAuthToken(),
+        Call<ResponseWrapper<Post>> call = postAPI.postNewPost(retrofitService.getAuthToken(),
                 addPostDataRequest,
                 filePart);
 
-        call.enqueue(new Callback<AddPostResponse>() {
+        call.enqueue(new Callback<ResponseWrapper<Post>>() {
             @Override
-            public void onResponse(Call<AddPostResponse> call, Response<AddPostResponse> response) {
+            public void onResponse(Call<ResponseWrapper<Post>> call, Response<ResponseWrapper<Post>> response) {
                 if (!response.isSuccessful()) {
                     Log.d("xxx", String.valueOf(response.code()));
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getContext(), "New post created!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
                     Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new HomeFragment()));
                 }
             }
 
             @Override
-            public void onFailure(Call<AddPostResponse> call, Throwable t) {
+            public void onFailure(Call<ResponseWrapper<Post>> call, Throwable t) {
                 Log.d("xxx", t.getMessage());
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
             }
