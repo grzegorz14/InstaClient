@@ -71,6 +71,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"/>
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/postVideoPostListItemPlayerView"
+            app:resize_mode="zoom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
         <LinearLayout
             android:layout_marginHorizontal="6dp"

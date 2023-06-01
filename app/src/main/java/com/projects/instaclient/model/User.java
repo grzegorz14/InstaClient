@@ -9,10 +9,10 @@ public class User {
     private String lastName;
     private String email;
     private String password;
-    private File profileImage;
+    private Image profileImage;
     private ArrayList<Long> posts;
 
-    public User(String id, String firstName, String lastName, String email, String password, File profileImage, ArrayList<Long> posts) {
+    public User(String id, String firstName, String lastName, String email, String password, Image profileImage, ArrayList<Long> posts) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -22,7 +22,7 @@ public class User {
         this.password = password;
     }
 
-    public User(String firstName, String lastName, String email, String password, File profileImage, ArrayList<Integer> posts) {
+    public User(String firstName, String lastName, String email, String password, Image profileImage, ArrayList<Integer> posts) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -88,11 +88,11 @@ public class User {
         this.password = password;
     }
 
-    public File getProfileImage() {
+    public Image getProfileImage() {
         return profileImage;
     }
 
-    public void setProfileImage(File profileImage) {
+    public void setProfileImage(Image profileImage) {
         this.profileImage = profileImage;
     }
 

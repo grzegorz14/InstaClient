@@ -8,17 +8,20 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
+import com.projects.instaclient.view.MainActivity;
 import com.projects.instaclient.view.fragments.LoginFragment;
 import com.projects.instaclient.view.fragments.NavigationFragment;
-import com.projects.instaclient.view.fragments.ProfileFragment;
-import com.projects.instaclient.view.fragments.SettingsFragment;
 
+import java.io.File;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,7 +47,7 @@ public class ProfileViewModel extends ViewModel {
         setupProfile();
     }
 
-    private void getProfile() {
+    public void setProfileFromCall() {
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();
 
@@ -71,6 +74,39 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
+    public void updateProfileImage(Context context, FragmentManager fragmentManager, String imageUri) {
+        File file = new File(imageUri);
+
+        RequestBody fileRequest = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
+
+        RetrofitService retrofitService = RetrofitService.getInstance();
+        PostAPI postAPI = retrofitService.getPostAPI();
+        Call<ResponseWrapper<User>> call = postAPI.postProfileImage(retrofitService.getAuthToken(), filePart);
+
+        call.enqueue(new Callback<ResponseWrapper<User>>() {
+            @Override
+            public void onResponse(Call<ResponseWrapper<User>> call, Response<ResponseWrapper<User>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show();
+                } else {
+                    if (response.body().getSuccess()) {
+                        User responseUser = response.body().getData();
+                        setupProfile(responseUser);
+                    }
+                    Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseWrapper<User>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     public void updateProfile(Context context, FragmentManager fragmentManager, String newFirstName, String newLastName, String newEmail) {
         User newUserData = new User(
                 newFirstName,
@@ -93,7 +129,6 @@ public class ProfileViewModel extends ViewModel {
                         User responseUser = response.body().getData();
                         setupProfile(responseUser);
                         Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_LONG).show();
-                        Helpers.replaceMainFragment(fragmentManager, new NavigationFragment(new ProfileFragment()));
                     }
                     else {
                         Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_LONG).show();
@@ -108,34 +143,40 @@ public class ProfileViewModel extends ViewModel {
         });
     }
 
-//    public void logIn(Context context, FragmentManager fragmentManager, String email, String password) {
-//        User userData = new User(email, password);
-//
-//        RetrofitService retrofitService = RetrofitService.getInstance();
-//        PostAPI postAPI = retrofitService.getPostAPI();
-//        Call<LoginResponse> call = postAPI.postLoginData(userData);
-//
-//        call.enqueue(new Callback<LoginResponse>() {
-//            @Override
-//            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-//                if (!response.isSuccessful()) {
-//                    Log.d("xxx", String.valueOf(response.code()));
-//                    Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show();
-//                }
-//                else {
-//                    String authToken = response.body().getToken();
-//                    retrofitService.setAuthToken(authToken);
-//
-//                    Helpers.replaceMainFragment(fragmentManager, new NavigationFragment());
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<LoginResponse> call, Throwable t) {
-//                Log.d("xxx", t.getMessage());
-//            }
-//        });
-//    }
+    public void logIn(Context context, FragmentManager fragmentManager, String email, String password) {
+        User userData = new User(email, password);
+
+        RetrofitService retrofitService = RetrofitService.getInstance();
+        PostAPI postAPI = retrofitService.getPostAPI();
+        Call<ResponseWrapper<String>> call = postAPI.postLoginData(userData);
+
+        call.enqueue(new Callback<ResponseWrapper<String>>() {
+            @Override
+            public void onResponse(Call<ResponseWrapper<String>> call, Response<ResponseWrapper<String>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(context, response.message(), Toast.LENGTH_LONG).show();
+                }
+                else {
+                    if (response.body().getSuccess()) {
+                        String authToken = response.body().getData();
+                        retrofitService.setAuthToken(authToken);
+                        MainActivity.profileViewModel.setProfileFromCall();
+                        Helpers.replaceMainFragment(fragmentManager, new NavigationFragment());
+                    }
+                    else {
+                        Toast.makeText(context, response.body().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseWrapper<String>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(context, t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 
     public void logOut(Context context, FragmentManager fragmentManager) {
         RetrofitService retrofitService = RetrofitService.getInstance();

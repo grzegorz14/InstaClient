@@ -50,6 +50,11 @@ public interface PostAPI {
                                       @Part("data") AddPostDataRequest data,
                                       @Part MultipartBody.Part file);
 
+    @Multipart
+    @POST("api/user/profile/image")
+    Call<ResponseWrapper<User>> postProfileImage(@Header("Authorization") String token,
+                                            @Part MultipartBody.Part file);
+
     @GET("api/posts")
     Call<ResponseWrapper<ArrayList<Post>>> getAllPosts();
 

@@ -1,6 +1,8 @@
 package com.projects.instaclient.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.SimpleExoPlayer;
+import androidx.media3.ui.AspectRatioFrameLayout;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -18,6 +25,7 @@ import com.projects.instaclient.model.Image;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.service.RetrofitService;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,14 +55,28 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
 
         holder.binding.setPost(post);
 
-        Glide.with(holder.profileImageView.getContext())
+        Glide.with(holder.binding.profileImagePostListItemImageView.getContext())
                 .load("http://" + RetrofitService.getServerHost() + "/api/uploads/" + post.getSimpleUser().getId() + "/profile_image.jpg")
                 .error(R.drawable.profile)
-                .into(holder.profileImageView);
+                .into(holder.binding.profileImagePostListItemImageView);
 
-        Glide.with(holder.postImageView.getContext())
-                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
-                .into(holder.postImageView);
+        // video or image
+        if (post.getImage().getUrl().contains("mp4")) {
+            ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
+            holder.binding.postVideoPostListItemPlayerView.setPlayer(player);
+            MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
+            player.addMediaItem(firstItem);
+            player.prepare();
+            player.setPlayWhenReady(false);
+
+            holder.binding.postImagePostListItemImageView.setVisibility(View.GONE);
+        }
+        else {
+            Glide.with(holder.binding.postImagePostListItemImageView.getContext())
+                    .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                    .into(holder.binding.postImagePostListItemImageView);
+            holder.binding.postVideoPostListItemPlayerView.setVisibility(View.GONE);
+        }
 
         String tags = "";
         for (String tag : post.getTags()) {
@@ -62,20 +84,20 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
                 tags += "#" + tag + "  ";
             }
         }
-        holder.tagsTextView.setText(tags);
+        holder.binding.tagsPostListItemTextView.setText(tags);
 
-        holder.heartLottie.setOnClickListener(v -> {
+        holder.binding.heartLottie.setOnClickListener(v -> {
             if (holder.isHeartClicked) {
                 post.setLikes(post.getLikes() - 1);
                 holder.binding.setPost(post);
-                holder.heartLottie.setMinAndMaxProgress(0.5f, 1f);
+                holder.binding.heartLottie.setMinAndMaxProgress(0.5f, 1f);
             }
             else {
                 post.setLikes(post.getLikes() + 1);
                 holder.binding.setPost(post);
-                holder.heartLottie.setMinAndMaxProgress(0f, 0.5f);
+                holder.binding.heartLottie.setMinAndMaxProgress(0f, 0.5f);
             }
-            holder.heartLottie.playAnimation();
+            holder.binding.heartLottie.playAnimation();
             holder.isHeartClicked = !holder.isHeartClicked;
         });
     }
@@ -88,11 +110,6 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
     public static class HomeViewHolder extends RecyclerView.ViewHolder {
 
         private PostListItemBinding binding;
-
-        private ImageView profileImageView;
-        private ImageView postImageView;
-        private TextView tagsTextView;
-        private LottieAnimationView heartLottie;
         private boolean isHeartClicked = false;
 
         public HomeViewHolder(View itemView, PostListItemBinding binding) {
@@ -100,13 +117,8 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
 
             this.binding = binding;
 
-            this.profileImageView = itemView.findViewById(R.id.profileImagePostListItemImageView);
-            this.postImageView = itemView.findViewById(R.id.postImagePostListItemImageView);
-            this.tagsTextView = itemView.findViewById(R.id.tagsPostListItemTextView);
-
-            this.heartLottie = itemView.findViewById(R.id.heartLottie);
-            this.heartLottie.setSpeed(3);
-            this.heartLottie.setMinAndMaxProgress(0f, 0.5f);
+            binding.heartLottie.setSpeed(3);
+            binding.heartLottie.setMinAndMaxProgress(0f, 0.5f);
         }
     }
 }

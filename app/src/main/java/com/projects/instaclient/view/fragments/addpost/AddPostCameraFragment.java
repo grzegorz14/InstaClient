@@ -218,6 +218,40 @@ public class AddPostCameraFragment extends Fragment {
                 });
     }
 
+    private void recordVideo() {
+        String timestamp = String.valueOf(new Timestamp(System.currentTimeMillis()).getTime());
+
+        ContentValues contentValues = new ContentValues();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
+        }
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+
+        ImageCapture.OutputFileOptions outputFileOptions =
+                new ImageCapture.OutputFileOptions.Builder(
+                        getContext().getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues)
+                        .build();
+
+        imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(getContext()),
+                new ImageCapture.OnImageSavedCallback() {
+
+                    final Bitmap bitmap = previewView.getBitmap();
+
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        String uri = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + timestamp + ".jpg";
+                        Helpers.replaceMainFragment(getParentFragmentManager(), new AcceptImagePostFragment(bitmap, uri));
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
     private void flipCamera() {
         if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;

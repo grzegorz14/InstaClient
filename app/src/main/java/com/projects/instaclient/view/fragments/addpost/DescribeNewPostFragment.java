@@ -234,6 +234,8 @@ public class DescribeNewPostFragment extends Fragment {
     }
 
     private void createPost() {
+        Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new HomeFragment()));
+
         File file = new File(imageUri);
 
         Log.d("xxx", String.valueOf(imageUri));
@@ -259,7 +261,6 @@ public class DescribeNewPostFragment extends Fragment {
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new HomeFragment()));
                 }
             }
 

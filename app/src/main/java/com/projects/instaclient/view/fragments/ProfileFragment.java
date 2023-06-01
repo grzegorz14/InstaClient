@@ -13,8 +13,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.projects.instaclient.R;
-import com.projects.instaclient.adapters.HomeRecAdapter;
 import com.projects.instaclient.adapters.ProfileRecAdapter;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentProfileBinding;
@@ -23,6 +23,7 @@ import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
+import com.projects.instaclient.view.MainActivity;
 import com.projects.instaclient.viewmodel.ProfileViewModel;
 
 import java.util.ArrayList;
@@ -47,50 +48,39 @@ public class ProfileFragment extends Fragment {
             authAndGoToSettingsFragment();
         });
 
-        // SETUP VIEW MODEL
-        profileViewModel = new ViewModelProvider(requireActivity())
-                .get(ProfileViewModel.class);
-        binding.setProfileViewModel(profileViewModel);
-        binding.setLifecycleOwner(getViewLifecycleOwner());
+        // GET VIEW MODEL
+        profileViewModel = MainActivity.profileViewModel;
 
-        RetrofitService retrofitService = RetrofitService.getInstance();
-        PostAPI postAPI = retrofitService.getPostAPI();
-        Call<ResponseWrapper<User>> call = postAPI.getProfile(retrofitService.getAuthToken());
-        call.enqueue(new Callback<ResponseWrapper<User>>() {
-            @Override
-            public void onResponse(Call<ResponseWrapper<User>> call, Response<ResponseWrapper<User>> response) {
-                if (!response.isSuccessful()) {
-                    Log.d("xxx", String.valueOf(response.code()));
-                }
-                else {
-                    if (response.body().getSuccess()) {
-                        User responseUser = response.body().getData();
-                        profileViewModel.setupProfile(responseUser);
+        // PROFILE IMAGE
+        if (profileViewModel.getObservedProfile().getValue() != null) {
+            binding.setProfileViewModel(profileViewModel);
 
-                        int postsNumber = responseUser.getPosts().size();
-                        if (postsNumber == 0) {
-                            return;
-                        }
+            User user = profileViewModel.getObservedProfile().getValue();
+            int postsNumber = user.getPosts().size();
 
-                        // GET POSTS
-                        getPostsOfUser(responseUser.getId(), postsNumber);
-                    }
-                    else {
-                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
+            binding.profileLikesSumTextView.setText("0 likes");
+
+
+            // GET POSTS
+            getPostsOfUser(user.getId());
+
+            // SET PROFILE IMAGE
+            if (profileViewModel.getObservedProfile().getValue().getProfileImage() != null) {
+                Glide.with(binding.profileImageProfileImageView.getContext())
+                        .load("http://" + RetrofitService.getServerHost() + "/api/getfile/" + user.getProfileImage().getId())
+                        .error(R.drawable.profile)
+                        .into(binding.profileImageProfileImageView);
             }
+        }
+        else {
+            Helpers.replaceNavigationFragment(getParentFragmentManager(), new HomeFragment());
+        }
 
-            @Override
-            public void onFailure(Call<ResponseWrapper<User>> call, Throwable t) {
-                Log.d("xxx", t.getMessage());
-            }
-        });
 
         return binding.getRoot();
     }
 
-    private void getPostsOfUser(String userId, int postsNumber) {
+    private void getPostsOfUser(String userId) {
         Call<ResponseWrapper<ArrayList<Post>>> call = RetrofitService.getInstance().getPostAPI().getAllPostOfUserById(userId);
         call.enqueue(new Callback<ResponseWrapper<ArrayList<Post>>>() {
             @Override
@@ -101,7 +91,10 @@ public class ProfileFragment extends Fragment {
                 } else {
                     if (response.body().getSuccess()) {
                         // SET USER POSTS
-                        int cols = postsNumber < 3 ? 1 : (postsNumber < 9 ? 2 : 3);
+                        if (response.body().getData().size() > 0) {
+                            binding.noPostsProfileLinearLayout.setVisibility(View.GONE);
+                        }
+                        int cols = response.body().getData().size() < 3 ? 1 : (response.body().getData().size() < 9 ? 2 : 3);
                         ProfileRecAdapter adapter = new ProfileRecAdapter(response.body().getData(), getLayoutInflater(), getActivity(), cols);
 
                         // SET RECYCLER VIEW
@@ -149,7 +142,7 @@ public class ProfileFragment extends Fragment {
 
                         getActivity().getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.mainFrameLayout, new SettingsFragment(profileViewModel))
+                                .replace(R.id.mainFrameLayout, new SettingsFragment())
                                 .commit();
                     }
                     else {

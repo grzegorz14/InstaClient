@@ -22,6 +22,7 @@ import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
+import com.projects.instaclient.view.MainActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,56 +37,24 @@ public class LoginFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentLoginBinding.inflate(getLayoutInflater());
 
+        // ON CLICKS
         binding.loginButton.setOnClickListener(v -> {
-            loginUser();
+            MainActivity.profileViewModel.logIn(
+                    getContext(),
+                    getParentFragmentManager(),
+                    binding.emailLoginTextInput.getEditText().getText().toString(),
+                    binding.passwordLoginTextInput.getEditText().getText().toString());
         });
 
         binding.goToRegisterPageLink.setOnClickListener(v -> {
             Helpers.replaceMainFragment(getParentFragmentManager(), new RegisterFragment());
         });
 
-        // set server ip from application level - hidden function
         binding.instagramSetServerIpTextView.setOnClickListener(v -> {
-            setServerIp();
+            setServerIp(); // set server ip from application level - hidden function
         });
 
         return binding.getRoot();
-    }
-
-    private void loginUser() {
-        User userData = new User(
-                binding.emailLoginTextInput.getEditText().getText().toString(),
-                binding.passwordLoginTextInput.getEditText().getText().toString());
-
-        RetrofitService retrofitService = RetrofitService.getInstance();
-        PostAPI postAPI = retrofitService.getPostAPI();
-        Call<ResponseWrapper<String>> call = postAPI.postLoginData(userData);
-
-        call.enqueue(new Callback<ResponseWrapper<String>>() {
-            @Override
-            public void onResponse(Call<ResponseWrapper<String>> call, Response<ResponseWrapper<String>> response) {
-                if (!response.isSuccessful()) {
-                    Log.d("xxx", String.valueOf(response.code()));
-                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
-                }
-                else {
-                    if (response.body().getSuccess()) {
-                        String authToken = response.body().getData();
-                        retrofitService.setAuthToken(authToken);
-                        Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment());
-                    }
-                    else {
-                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseWrapper<String>> call, Throwable t) {
-                Log.d("xxx", t.getMessage());
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
     }
 
     private void setServerIp() {

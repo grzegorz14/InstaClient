@@ -34,8 +34,14 @@ android {
 }
 
 dependencies {
+    // video
+    implementation "androidx.media3:media3-exoplayer:1.0.2"
+    implementation "androidx.media3:media3-exoplayer-dash:1.0.2"
+    implementation "androidx.media3:media3-ui:1.0.2"
+
     // glide
     implementation 'com.github.bumptech.glide:glide:4.14.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
 
     // maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
