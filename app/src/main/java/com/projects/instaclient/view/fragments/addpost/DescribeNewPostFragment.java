@@ -2,6 +2,7 @@ package com.projects.instaclient.view.fragments.addpost;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.media3.common.MediaItem;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputLayout;
@@ -40,8 +42,6 @@ import retrofit2.Response;
 public class DescribeNewPostFragment extends Fragment {
 
     private FragmentDescribeNewPostBinding binding;
-
-    private Bitmap image;
     private String imageUri;
 
     private String description = null;
@@ -49,13 +49,11 @@ public class DescribeNewPostFragment extends Fragment {
     private ArrayList<String> tags = new ArrayList<>();
     private ArrayList<String> allTags = new ArrayList<>();
 
-    public DescribeNewPostFragment(Bitmap image, String imageUri) {
-        this.image = image;
+    public DescribeNewPostFragment(String imageUri) {
         this.imageUri = imageUri;
     }
 
-    public DescribeNewPostFragment(Bitmap image, String imageUri, String description, String location, ArrayList<String> tags) {
-        this.image = image;
+    public DescribeNewPostFragment(String imageUri, String description, String location, ArrayList<String> tags) {
         this.imageUri = imageUri;
         this.description = description;
         this.location = location;
@@ -85,7 +83,7 @@ public class DescribeNewPostFragment extends Fragment {
         // ON CLICKS
         binding.chooseLocationButton.setOnClickListener(v -> {
             description = binding.descriptionNewPostEditText.getText().toString();
-            Helpers.replaceMainFragment(getParentFragmentManager(), new ChooseLocationFragment(image, imageUri, description, location, tags));
+            Helpers.replaceMainFragment(getParentFragmentManager(), new ChooseLocationFragment(imageUri, description, location, tags));
         });
 
         binding.chooseTagButton.setOnClickListener(v -> {
@@ -238,9 +236,16 @@ public class DescribeNewPostFragment extends Fragment {
 
         File file = new File(imageUri);
 
-        Log.d("xxx", String.valueOf(imageUri));
-        RequestBody fileRequest = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
+        RequestBody fileRequest;
+        MultipartBody.Part filePart;
+        if (imageUri.contains(".mp4")) {
+            fileRequest = RequestBody.create(MediaType.parse("video/*"), file);
+            filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
+        }
+        else {
+            fileRequest = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+            filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
+        }
 
         AddPostDataRequest addPostDataRequest = new AddPostDataRequest(
                 binding.descriptionNewPostEditText.getText().toString(),

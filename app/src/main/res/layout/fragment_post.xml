@@ -45,6 +45,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
+                        android:src="@drawable/profile"
                         android:contentDescription="Profile photo" />
                 </androidx.cardview.widget.CardView>
 
@@ -83,6 +84,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"/>
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/postVideoPostPlayerView"
+                app:resize_mode="zoom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
             <LinearLayout
                 android:layout_marginHorizontal="6dp"

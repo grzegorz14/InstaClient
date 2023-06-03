@@ -12,6 +12,12 @@
             android:id="@+id/imageListItemImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/postVideoListItemPlayerView"
+            app:resize_mode="zoom"
+            app:use_controller="false"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </androidx.cardview.widget.CardView>
 </layout>

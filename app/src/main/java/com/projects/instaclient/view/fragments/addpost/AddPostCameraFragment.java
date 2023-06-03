@@ -1,5 +1,9 @@
 package com.projects.instaclient.view.fragments.addpost;
 
+import static com.airbnb.lottie.LottieDrawable.INFINITE;
+import static com.airbnb.lottie.LottieDrawable.RESTART;
+
+import android.Manifest;
 import android.animation.Animator;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -7,8 +11,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +18,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -30,20 +34,19 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.projects.instaclient.R;
 import com.projects.instaclient.databinding.FragmentAddPostCameraBinding;
 import com.projects.instaclient.helpers.Helpers;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 public class AddPostCameraFragment extends Fragment {
@@ -60,9 +63,13 @@ public class AddPostCameraFragment extends Fragment {
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     private ImageCapture imageCapture;
+    private VideoCapture videoCapture;
     private PreviewView previewView;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
+    private boolean isRecording = false;
+
+    @SuppressLint("RestrictedApi")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -83,15 +90,28 @@ public class AddPostCameraFragment extends Fragment {
             flipCamera();
         });
 
-
         binding.cameraLottie.setOnClickListener(v -> {
-            binding.cameraLottie.setSpeed(4);
-            binding.cameraLottie.playAnimation();
             takePhoto();
         });
 
+        binding.videoLottie.setSpeed(2f);
+        binding.videoLottie.setMinAndMaxProgress(0f, 0.82f);
+        binding.videoLottie.setRepeatMode(RESTART);
+        binding.videoLottie.setRepeatCount(INFINITE);
+        binding.videoLottie.setOnClickListener(v -> {
+            if (isRecording) {
+                videoCapture.stopRecording();
+                binding.videoLottie.pauseAnimation();
+            }
+            else {
+                recordVideo();
+                binding.videoLottie.playAnimation();
+            }
+            isRecording = !isRecording;
+        });
+
         binding.galleryLottie.setOnClickListener(v -> {
-            binding.galleryLottie.setSpeed(5);
+            binding.galleryLottie.setSpeed(6);
             binding.galleryLottie.playAnimation();
 
             binding.galleryLottie.addAnimatorListener(new Animator.AnimatorListener() {
@@ -103,7 +123,7 @@ public class AddPostCameraFragment extends Fragment {
                 @Override
                 public void onAnimationEnd(@NonNull Animator animation) {
                     Intent intent = new Intent(Intent.ACTION_PICK);
-                    intent.setType("image/*");
+                    intent.setType("image/* video/*");
                     startActivityForResult(intent, 100);
                 }
 
@@ -175,7 +195,7 @@ public class AddPostCameraFragment extends Fragment {
         int flashMode = ImageCapture.FLASH_MODE_OFF;
         imageCapture.setFlashMode(flashMode);
 
-        VideoCapture videoCapture = new VideoCapture.Builder()
+        videoCapture = new VideoCapture.Builder()
                 .setTargetRotation(Surface.ROTATION_0)
                 .build();
 
@@ -218,6 +238,7 @@ public class AddPostCameraFragment extends Fragment {
                 });
     }
 
+    @SuppressLint("RestrictedApi")
     private void recordVideo() {
         String timestamp = String.valueOf(new Timestamp(System.currentTimeMillis()).getTime());
 
@@ -225,29 +246,34 @@ public class AddPostCameraFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timestamp);
         }
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
 
-        ImageCapture.OutputFileOptions outputFileOptions =
-                new ImageCapture.OutputFileOptions.Builder(
+        VideoCapture.OutputFileOptions outputFileOptions =
+                new VideoCapture.OutputFileOptions.Builder(
                         getContext().getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                         contentValues)
                         .build();
 
-        imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(getContext()),
-                new ImageCapture.OnImageSavedCallback() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        videoCapture.startRecording(
+                outputFileOptions,
+                ContextCompat.getMainExecutor(getContext()),
+                new VideoCapture.OnVideoSavedCallback() {
 
                     final Bitmap bitmap = previewView.getBitmap();
 
                     @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        String uri = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/" + timestamp + ".jpg";
+                    public void onVideoSaved(@NonNull VideoCapture.OutputFileResults outputFileResults) {
+                        String uri = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES) + "/" + timestamp + ".mp4";
                         Helpers.replaceMainFragment(getParentFragmentManager(), new AcceptImagePostFragment(bitmap, uri));
                     }
 
                     @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Toast.makeText(getContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                    public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
+                        Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

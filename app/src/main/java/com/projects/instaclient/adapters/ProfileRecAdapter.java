@@ -8,6 +8,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -47,9 +50,23 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
 
         holder.setPost(post);
 
-        Glide.with(holder.imageView.getContext())
-                .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
-                .into(holder.imageView);
+        // video or image
+        if (post.getImage().getUrl().contains("mp4")) {
+            ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
+            holder.playerView.setPlayer(player);
+            MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
+            player.addMediaItem(firstItem);
+            player.prepare();
+            player.setPlayWhenReady(false);
+
+            holder.imageView.setVisibility(View.GONE);
+        }
+        else {
+            Glide.with(holder.imageView.getContext())
+                    .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                    .into(holder.imageView);
+            holder.playerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -59,6 +76,7 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
 
     public static class ProfileViewHolder extends RecyclerView.ViewHolder {
         private ImageView imageView;
+        private PlayerView playerView;
         private Random random = new Random();
         private Post post;
 
@@ -66,9 +84,15 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
             super(itemView);
 
             this.imageView = itemView.findViewById(R.id.imageListItemImageView);
+            this.playerView = itemView.findViewById(R.id.postVideoListItemPlayerView);
+
             int height = random.nextInt(300) + 600 - 100 * cols;
             this.imageView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+            this.playerView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
             this.imageView.setOnClickListener(v -> {
+                Helpers.replaceNavigationFragment(activity.getSupportFragmentManager(), new PostFragment(post));
+            });
+            this.playerView.setOnClickListener(v -> {
                 Helpers.replaceNavigationFragment(activity.getSupportFragmentManager(), new PostFragment(post));
             });
         }

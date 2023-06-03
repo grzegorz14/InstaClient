@@ -52,14 +52,12 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
     private String chosenLocation;
 
     // DESCRIBE POST FIELDS
-    private Bitmap image;
     private String imageUri;
     private String description;
     private String location;
     private ArrayList<String> tags;
 
-    public ChooseLocationFragment(Bitmap image, String imageUri, String description, String location, ArrayList<String> tags) {
-        this.image = image;
+    public ChooseLocationFragment(String imageUri, String description, String location, ArrayList<String> tags) {
         this.imageUri = imageUri;
         this.description = description;
         this.location = location;
@@ -77,11 +75,11 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
 
         // ON CLICKS
         binding.cancelLocationImageButton.setOnClickListener(v -> {
-            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(image, imageUri, description, location, tags));
+            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, location, tags));
         });
 
         binding.acceptLocationImageButton.setOnClickListener(v -> {
-            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(image, imageUri, description, chosenLocation, tags));
+            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, chosenLocation, tags));
         });
 
         // SETUP MAPS
