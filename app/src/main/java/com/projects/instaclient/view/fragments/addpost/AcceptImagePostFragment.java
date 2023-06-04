@@ -44,31 +44,12 @@ public class AcceptImagePostFragment extends Fragment {
             player.prepare();
             player.setPlayWhenReady(false);
 
-            binding.tranformImageLinearLayout.setVisibility(View.GONE);
             binding.acceptPostImageImageView.setVisibility(View.GONE);
         }
         else {
             binding.acceptPostImageImageView.setImageBitmap(image);
             binding.acceptPostVideoPlayerView.setVisibility(View.GONE);
         }
-
-        // ON CLICKS
-        binding.rotateLeftButton.setOnClickListener(v -> {
-            image = rotate(image, false);
-            binding.acceptPostImageImageView.setImageBitmap(image);
-        });
-        binding.rotateRightButton.setOnClickListener(v -> {
-            image = rotate(image, true);
-            binding.acceptPostImageImageView.setImageBitmap(image);
-        });
-        binding.flipHorizontalButton.setOnClickListener(v -> {
-            image = flip(image, true, false);
-            binding.acceptPostImageImageView.setImageBitmap(image);
-        });
-        binding.flipVerticalButton.setOnClickListener(v -> {
-            image = flip(image, false, true);
-            binding.acceptPostImageImageView.setImageBitmap(image);
-        });
 
         binding.cancelImageButton.setOnClickListener(v -> {
             Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new AddPostCameraFragment()));
@@ -79,22 +60,5 @@ public class AcceptImagePostFragment extends Fragment {
         });
 
         return binding.getRoot();
-    }
-
-    private static Bitmap rotate(Bitmap bitmap, boolean right) {
-        Matrix matrix = new Matrix();
-        if (right) {
-            matrix.postRotate(90);
-        }
-        else {
-            matrix.postRotate(-90);
-        }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    private static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
-        Matrix matrix = new Matrix();
-        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 }

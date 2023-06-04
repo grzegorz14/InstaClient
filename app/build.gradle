@@ -45,7 +45,7 @@ dependencies {
 
     // maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation 'com.google.android.libraries.places:places:3.0.0'
+    implementation 'com.google.android.libraries.places:places:3.1.0'
 
     // camera
     def camerax_version = "1.1.0"

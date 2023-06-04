@@ -9,51 +9,6 @@
         android:background="#000000"
         tools:context=".view.fragments.addpost.AcceptImagePostFragment">
 
-        <LinearLayout
-            android:id="@+id/tranformImageLinearLayout"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginVertical="10dp"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:background="@drawable/rotate_left"
-                android:id="@+id/rotateLeftButton"
-                android:backgroundTint="#007BFF"
-                android:textColor="@color/white"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_weight="1"/>
-            <Button
-                android:background="@drawable/rotate_right"
-                android:id="@+id/rotateRightButton"
-                android:backgroundTint="#007BFF"
-                android:textColor="@color/white"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_weight="1"/>
-            <Button
-                android:background="@drawable/flip_vertical"
-                android:id="@+id/flipVerticalButton"
-                android:backgroundTint="#007BFF"
-                android:textColor="@color/white"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_weight="1"/>
-            <Button
-                android:background="@drawable/flip_horizontal"
-                android:id="@+id/flipHorizontalButton"
-                android:backgroundTint="#007BFF"
-                android:textColor="@color/white"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_weight="1"/>
-        </LinearLayout>
-
         <ImageView
             android:id="@+id/acceptPostImageImageView"
             android:layout_width="match_parent"

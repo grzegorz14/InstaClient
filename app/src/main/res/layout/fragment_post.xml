@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            tools:context=".view.fragments.PostFragment">
+            tools:context=".view.fragments.profile.PostFragment">
 
             <TextView
                 android:textStyle="bold"
@@ -52,7 +52,8 @@
                 <LinearLayout
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="match_parent">
                     <TextView
                         android:textStyle="bold"
@@ -70,13 +71,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAlignment="textStart"
-                        android:visibility="@{Post.location.isEmpty() ? View.GONE : View.VISIBLE }"
+                        android:visibility="@{Post.location.isBlank() || Post.location == null ? View.GONE : View.VISIBLE }"
                         android:text="@{Post.location}"
                         android:textSize="12sp"
                         android:textColor="#000000"
                         android:fontFamily="@font/roboto_light"
                         />
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/editPostButton"
+                    android:layout_gravity="center"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:src="@drawable/menu"/>
             </LinearLayout>
 
             <ImageView

@@ -1,4 +1,4 @@
-package com.projects.instaclient.view.fragments;
+package com.projects.instaclient.view.fragments.login;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -6,27 +6,17 @@ import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.projects.instaclient.R;
-import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentLoginBinding;
 import com.projects.instaclient.helpers.Helpers;
-import com.projects.instaclient.model.User;
-import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.MainActivity;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginFragment extends Fragment {
 

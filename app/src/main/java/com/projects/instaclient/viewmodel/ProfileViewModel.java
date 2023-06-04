@@ -14,7 +14,7 @@ import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.MainActivity;
-import com.projects.instaclient.view.fragments.LoginFragment;
+import com.projects.instaclient.view.fragments.login.LoginFragment;
 import com.projects.instaclient.view.fragments.NavigationFragment;
 
 import java.io.File;

@@ -1,42 +1,47 @@
 package com.projects.instaclient.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.media3.common.MediaItem;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.SimpleExoPlayer;
-import androidx.media3.ui.AspectRatioFrameLayout;
-import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
+import com.projects.instaclient.api.PostAPI;
+import com.projects.instaclient.model.User;
+import com.projects.instaclient.model.response.ResponseWrapper;
+import com.projects.instaclient.view.fragments.profile.OtherUserProfileFragment;
 import com.projects.instaclient.R;
 import com.projects.instaclient.databinding.PostListItemBinding;
-import com.projects.instaclient.model.Image;
+import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.service.RetrofitService;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeViewHolder> {
-    private List<Post> list;
-    private LayoutInflater layoutInflater;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    public HomeRecAdapter(List<Post> list, LayoutInflater layoutInflater) {
-        Collections.shuffle(list);
+public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeViewHolder> {
+    private final List<Post> list;
+    private LayoutInflater layoutInflater;
+    private FragmentManager fragmentManager;
+
+    public HomeRecAdapter(List<Post> list, LayoutInflater layoutInflater, FragmentManager fragmentManager) {
+        list.sort(Comparator.comparing(Post::getId)); // sort by creation date
+        Collections.reverse(list);
         this.list = list;
         this.layoutInflater = layoutInflater;
+        this.fragmentManager = fragmentManager;
     }
 
     @NonNull
@@ -74,17 +79,18 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
         else {
             Glide.with(holder.binding.postImagePostListItemImageView.getContext())
                     .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                    .error(R.drawable.empty_image)
                     .into(holder.binding.postImagePostListItemImageView);
             holder.binding.postVideoPostListItemPlayerView.setVisibility(View.GONE);
         }
 
-        String tags = "";
+        StringBuilder tags = new StringBuilder();
         for (String tag : post.getTags()) {
             if (!tag.isEmpty()) {
-                tags += "#" + tag + "  ";
+                tags.append("#").append(tag).append("  ");
             }
         }
-        holder.binding.tagsPostListItemTextView.setText(tags);
+        holder.binding.tagsPostListItemTextView.setText(tags.toString());
 
         holder.binding.heartLottie.setOnClickListener(v -> {
             if (holder.isHeartClicked) {
@@ -100,6 +106,10 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
             holder.binding.heartLottie.playAnimation();
             holder.isHeartClicked = !holder.isHeartClicked;
         });
+
+        holder.binding.profileImagePostListItemImageView.setOnClickListener(v -> {
+            goToOtherUserProfileFragment(post.getSimpleUser().getId());
+        });
     }
 
     @Override
@@ -109,7 +119,7 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
 
     public static class HomeViewHolder extends RecyclerView.ViewHolder {
 
-        private PostListItemBinding binding;
+        private final PostListItemBinding binding;
         private boolean isHeartClicked = false;
 
         public HomeViewHolder(View itemView, PostListItemBinding binding) {
@@ -120,5 +130,29 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
             binding.heartLottie.setSpeed(3);
             binding.heartLottie.setMinAndMaxProgress(0f, 0.5f);
         }
+    }
+
+    private void goToOtherUserProfileFragment(String id) {
+        RetrofitService retrofitService = RetrofitService.getInstance();
+        Call<ResponseWrapper<User>> call = retrofitService.getPostAPI().getUserById(id);
+        call.enqueue(new Callback<ResponseWrapper<User>>() {
+            @Override
+            public void onResponse(Call<ResponseWrapper<User>> call, Response<ResponseWrapper<User>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                }
+                else {
+                    if (response.body().getSuccess()) {
+                        User responseUser = response.body().getData();
+                        Helpers.replaceNavigationFragment(fragmentManager, new OtherUserProfileFragment(responseUser));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseWrapper<User>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+            }
+        });
     }
 }

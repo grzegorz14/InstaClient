@@ -1,4 +1,4 @@
-package com.projects.instaclient.view.fragments;
+package com.projects.instaclient.view.fragments.profile;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -9,7 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -24,6 +23,7 @@ import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.MainActivity;
+import com.projects.instaclient.view.fragments.HomeFragment;
 import com.projects.instaclient.viewmodel.ProfileViewModel;
 
 import java.util.ArrayList;
@@ -108,9 +108,6 @@ public class ProfileFragment extends Fragment {
                         // SET LIKES SUM
                         int likes = response.body().getData().stream().flatMapToInt(post -> IntStream.of(post.getLikes())).sum();
                         binding.profileLikesSumTextView.setText(Helpers.convertLikesToText(likes));
-                    }
-                    else {
-                        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
             }

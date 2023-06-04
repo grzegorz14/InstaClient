@@ -5,14 +5,14 @@
     <data>
         <import type="com.projects.instaclient.helpers.Helpers"/>
         <variable
-            name="ProfileViewModel"
-            type="com.projects.instaclient.viewmodel.ProfileViewModel" />
+            name="User"
+            type="com.projects.instaclient.model.User" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:id="@+id/profileFragment"
+        android:id="@+id/otherProfileFragment"
         tools:context=".view.fragments.profile.ProfileFragment">
 
         <TextView
@@ -37,7 +37,7 @@
                 android:layout_marginHorizontal="20dp"
                 app:cardCornerRadius="400dp">
                 <ImageView
-                    android:id="@+id/profileImageProfileImageView"
+                    android:id="@+id/otherProfileImageProfileImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
@@ -58,13 +58,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <TextView
-                            android:id="@+id/fullNameTextView"
+                            android:id="@+id/otherProfileFullNameTextView"
                             android:textStyle="bold"
                             android:layout_marginTop="5dp"
                             android:layout_marginBottom="0dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@{ProfileViewModel.observedProfile.fullName}"
+                            android:text="@{User.fullName}"
                             android:textAlignment="textStart"
                             android:textSize="20sp"
                             android:textColor="#000000"
@@ -75,22 +75,13 @@
                             android:layout_marginBottom="10dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@{ProfileViewModel.observedProfile.email}"
+                            android:text="@{User.email}"
                             android:textAlignment="textStart"
                             android:textSize="15sp"
                             android:textColor="#666666"
                             android:fontFamily="@font/roboto_medium"
                             />
                     </LinearLayout>
-                    <ImageView
-                        android:id="@+id/settingsImageView"
-                        android:layout_weight="1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/menu35"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="2dp"
-                        app:tint="#666666" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -104,7 +95,7 @@
                         android:layout_marginTop="2dp"
                         app:tint="@color/instagram" />
                     <TextView
-                        android:id="@+id/profileLikesSumTextView"
+                        android:id="@+id/otherProfileLikesSumTextView"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -130,7 +121,7 @@
                         android:textStyle="bold"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="278 followers"
+                        android:text="72 followers"
                         android:textAlignment="textStart"
                         android:textSize="17sp"
                         android:textColor="#000000"
@@ -140,7 +131,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/noPostsProfileLinearLayout"
+            android:id="@+id/otherProfileNoPostsProfileLinearLayout"
             android:gravity="center"
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -163,7 +154,7 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/imagesRecyclerView"
+            android:id="@+id/otherProfileImagesRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </LinearLayout>

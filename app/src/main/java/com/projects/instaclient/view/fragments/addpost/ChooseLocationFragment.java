@@ -2,20 +2,18 @@ package com.projects.instaclient.view.fragments.addpost;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdate;
@@ -31,9 +29,11 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.projects.instaclient.view.fragments.editpost.EditPostFragment;
 import com.projects.instaclient.R;
 import com.projects.instaclient.databinding.FragmentChooseLocationBinding;
 import com.projects.instaclient.helpers.Helpers;
+import com.projects.instaclient.model.Post;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,10 +52,15 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
     private String chosenLocation;
 
     // DESCRIBE POST FIELDS
+    private Post post = null;
     private String imageUri;
     private String description;
     private String location;
     private ArrayList<String> tags;
+
+    public ChooseLocationFragment(Post post) {
+        this.post = post;
+    }
 
     public ChooseLocationFragment(String imageUri, String description, String location, ArrayList<String> tags) {
         this.imageUri = imageUri;
@@ -75,11 +80,22 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
 
         // ON CLICKS
         binding.cancelLocationImageButton.setOnClickListener(v -> {
-            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, location, tags));
+            if (post == null) {
+                Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, location, tags));
+            }
+            else {
+                Helpers.replaceMainFragment(getParentFragmentManager(), new EditPostFragment(post));
+            }
         });
 
         binding.acceptLocationImageButton.setOnClickListener(v -> {
-            Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, chosenLocation, tags));
+            if (post == null) {
+                Helpers.replaceMainFragment(getParentFragmentManager(), new DescribeNewPostFragment(imageUri, description, chosenLocation, tags));
+            }
+            else {
+                post.setLocation(chosenLocation);
+                Helpers.replaceMainFragment(getParentFragmentManager(), new EditPostFragment(post));
+            }
         });
 
         // SETUP MAPS
@@ -99,8 +115,8 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
             geocoder = new Geocoder(getContext());
 
             if (!Places.isInitialized()) {
-                Places.initialize(getContext(), API_KEY);
-                placesClient = Places.createClient(getContext());
+                Places.initialize(getActivity(), API_KEY);
+                placesClient = Places.createClient(getActivity());
             }
 
             AutocompleteSupportFragment autocompleteFragment =

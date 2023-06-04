@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".view.fragments.PostFragment">
+        tools:context=".view.fragments.profile.PostFragment">
 
         <LinearLayout
             android:layout_marginHorizontal="2dp"
@@ -57,7 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAlignment="textStart"
-                    android:visibility="@{Post.location.isEmpty() ? View.GONE : View.VISIBLE }"
+                    android:visibility="@{Post.location.isBlank() || Post.location == null  ? View.GONE : View.VISIBLE }"
                     android:text="@{Post.location}"
                     android:textSize="12sp"
                     android:textColor="#000000"

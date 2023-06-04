@@ -18,7 +18,7 @@ import com.projects.instaclient.R;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.service.RetrofitService;
-import com.projects.instaclient.view.fragments.PostFragment;
+import com.projects.instaclient.view.fragments.profile.PostFragment;
 
 import java.util.List;
 import java.util.Random;

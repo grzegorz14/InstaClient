@@ -1,4 +1,4 @@
-package com.projects.instaclient.view.fragments;
+package com.projects.instaclient.view.fragments.login;
 
 import android.content.DialogInterface;
 import android.os.Bundle;

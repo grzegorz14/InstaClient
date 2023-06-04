@@ -1,9 +1,11 @@
 package com.projects.instaclient.api;
 
+import com.projects.instaclient.model.Image;
 import com.projects.instaclient.model.Post;
 import com.projects.instaclient.model.User;
 import com.projects.instaclient.model.request.AddPostDataRequest;
 import com.projects.instaclient.model.request.CreateTagRequest;
+import com.projects.instaclient.model.request.EditImageRequest;
 import com.projects.instaclient.model.response.RegisterResponse;
 import com.projects.instaclient.model.response.ResponseWrapper;
 
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -65,7 +68,7 @@ public interface PostAPI {
     Call<ResponseWrapper<ArrayList<User>>> getAllUsers();
 
     @GET("api/getuser/{id}")
-    Call<ResponseWrapper<User>> getUserById(@Path("id") String token);
+    Call<ResponseWrapper<User>> getUserById(@Path("id") String id);
 
     @GET("api/tags/raw")
     Call<ResponseWrapper<ArrayList<String>>> getAllTagsRaw();
@@ -73,4 +76,12 @@ public interface PostAPI {
     @POST("api/tags")
     Call<ResponseWrapper<String>> postNewTag(@Body CreateTagRequest tagRequest);
 
+    @DELETE("api/posts/{id}")
+    Call<ResponseWrapper<Post>> deletePostById(@Path("id") String id);
+
+    @PATCH("api/filters")
+    Call<ResponseWrapper<Image>> patchEditImage(@Body EditImageRequest editImageRequest);
+
+    @PATCH("api/filters/basic/{id}")
+    Call<ResponseWrapper<Image>> patchBasicImage(@Path("id") String id);
 }

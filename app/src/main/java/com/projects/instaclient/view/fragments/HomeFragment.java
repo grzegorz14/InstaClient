@@ -20,6 +20,7 @@ import com.projects.instaclient.model.response.ResponseWrapper;
 import com.projects.instaclient.service.RetrofitService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,7 +45,8 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
                 } else {
                     if (response.body().getSuccess()) {
-                        HomeRecAdapter adapter = new HomeRecAdapter(response.body().getData(), getLayoutInflater());
+                        ArrayList<Post> posts = response.body().getData();
+                        HomeRecAdapter adapter = new HomeRecAdapter(posts, getLayoutInflater(), getParentFragmentManager());
 
                         // SET RECYCLER VIEW
                         RecyclerView recyclerView = binding.postsRecyclerView;

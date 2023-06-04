@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.projects.instaclient.databinding.FragmentNavigationBinding;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.view.fragments.addpost.AddPostCameraFragment;
+import com.projects.instaclient.view.fragments.profile.ProfileFragment;
 
 public class NavigationFragment extends Fragment {
 
@@ -38,8 +39,9 @@ public class NavigationFragment extends Fragment {
         });
 
         binding.addPostNavigationLottie.setProgress(0.5f);
+        binding.addPostNavigationLottie.setMinAndMaxProgress(0.3f, 0.5f);
+        binding.addPostNavigationLottie.setSpeed(0.8f);
         binding.addPostNavigationLottie.setOnClickListener(v -> {
-            binding.addPostNavigationLottie.setMinAndMaxProgress(0f, 0.5f);
             binding.addPostNavigationLottie.playAnimation();
             Helpers.replaceNavigationFragment(getParentFragmentManager(), new AddPostCameraFragment());
         });
