@@ -28,6 +28,7 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
+        android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity

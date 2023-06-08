@@ -66,22 +66,28 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
                 .into(holder.binding.profileImagePostListItemImageView);
 
         // video or image
+        holder.binding.postVideoPostListItemPlayerView.setVisibility(View.GONE);
         if (post.getImage().getUrl().contains("mp4")) {
-            ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
-            holder.binding.postVideoPostListItemPlayerView.setPlayer(player);
-            MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
-            player.addMediaItem(firstItem);
-            player.prepare();
-            player.setPlayWhenReady(false);
+            Glide.with(holder.binding.postImagePostListItemImageView.getContext())
+                    .load(R.drawable.play_video)
+                    .into(holder.binding.postImagePostListItemImageView);
+            holder.binding.postImagePostListItemImageView.setOnClickListener(v -> {
+                ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
+                holder.binding.postVideoPostListItemPlayerView.setPlayer(player);
+                MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
+                player.addMediaItem(firstItem);
+                player.prepare();
+                player.setPlayWhenReady(false);
 
-            holder.binding.postImagePostListItemImageView.setVisibility(View.GONE);
+                holder.binding.postImagePostListItemImageView.setVisibility(View.GONE);
+                holder.binding.postVideoPostListItemPlayerView.setVisibility(View.VISIBLE);
+            });
         }
         else {
             Glide.with(holder.binding.postImagePostListItemImageView.getContext())
                     .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
                     .error(R.drawable.empty_image)
                     .into(holder.binding.postImagePostListItemImageView);
-            holder.binding.postVideoPostListItemPlayerView.setVisibility(View.GONE);
         }
 
         StringBuilder tags = new StringBuilder();
@@ -110,6 +116,16 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
         holder.binding.profileImagePostListItemImageView.setOnClickListener(v -> {
             goToOtherUserProfileFragment(post.getSimpleUser().getId());
         });
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull HomeViewHolder holder) {
+        if (holder.binding.postVideoPostListItemPlayerView.getPlayer() != null) {
+            holder.binding.postVideoPostListItemPlayerView.getPlayer().stop();
+            holder.binding.postVideoPostListItemPlayerView.getPlayer().release();
+            holder.binding.postVideoPostListItemPlayerView.setPlayer(null);
+        }
+        super.onViewRecycled(holder);
     }
 
     @Override

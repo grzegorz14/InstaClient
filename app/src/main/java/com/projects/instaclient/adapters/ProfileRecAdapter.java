@@ -1,5 +1,6 @@
 package com.projects.instaclient.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,14 +53,20 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
 
         // video or image
         if (post.getImage().getUrl().contains("mp4")) {
-            ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
-            holder.playerView.setPlayer(player);
-            MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
-            player.addMediaItem(firstItem);
-            player.prepare();
-            player.setPlayWhenReady(false);
+            Glide.with(holder.imageView.getContext())
+                    .load(R.drawable.play_video)
+                    .into(holder.imageView);
+            holder.imageView.setOnClickListener(v -> {
+                ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
+                holder.playerView.setPlayer(player);
+                MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
+                player.addMediaItem(firstItem);
+                player.prepare();
+                player.setPlayWhenReady(false);
 
-            holder.imageView.setVisibility(View.GONE);
+                holder.imageView.setVisibility(View.GONE);
+                holder.playerView.setVisibility(View.VISIBLE);
+            });
         }
         else {
             Glide.with(holder.imageView.getContext())
@@ -67,6 +74,16 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
                     .into(holder.imageView);
             holder.playerView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ProfileViewHolder holder) {
+        if (holder.playerView.getPlayer() != null) {
+            holder.playerView.getPlayer().stop();
+            holder.playerView.getPlayer().release();
+            holder.playerView.setPlayer(null);
+        }
+        super.onViewRecycled(holder);
     }
 
     @Override

@@ -115,8 +115,12 @@ public class ChooseLocationFragment extends Fragment implements OnMapReadyCallba
             geocoder = new Geocoder(getContext());
 
             if (!Places.isInitialized()) {
-                Places.initialize(getActivity(), API_KEY);
+                Places.initialize(getActivity().getApplicationContext(), API_KEY);
                 placesClient = Places.createClient(getActivity());
+                if (!Places.isInitialized()) {
+                    Places.initialize(getActivity(), API_KEY);
+                    placesClient = Places.createClient(getActivity());
+                }
             }
 
             AutocompleteSupportFragment autocompleteFragment =
