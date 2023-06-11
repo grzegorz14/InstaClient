@@ -3,6 +3,7 @@ package com.projects.instaclient.view.fragments.addpost;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.media.browse.MediaBrowser;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.media3.common.MediaItem;
@@ -30,6 +32,7 @@ import com.projects.instaclient.view.fragments.HomeFragment;
 import com.projects.instaclient.view.fragments.NavigationFragment;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import okhttp3.MediaType;
@@ -231,6 +234,7 @@ public class DescribeNewPostFragment extends Fragment {
         binding.tagsChipGroup.addView(chip);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void createPost() {
         Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new HomeFragment()));
 
@@ -247,10 +251,13 @@ public class DescribeNewPostFragment extends Fragment {
             filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
         }
 
+        LocalDateTime date = LocalDateTime.now();
+
         AddPostDataRequest addPostDataRequest = new AddPostDataRequest(
                 binding.descriptionNewPostEditText.getText().toString(),
                 location,
-                tags);
+                tags,
+                date.toString());
 
         RetrofitService retrofitService = RetrofitService.getInstance();
         PostAPI postAPI = retrofitService.getPostAPI();

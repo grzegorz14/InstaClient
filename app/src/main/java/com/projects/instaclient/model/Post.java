@@ -23,17 +23,15 @@ public class Post {
         this.tags = tags;
     }
 
-    public Post(String id, SimpleUser simpleUser, Image image, String description, String location, ArrayList<String> tags, int likes) {
+    public Post(String id, SimpleUser simpleUser, Image image, String description, String location, ArrayList<String> tags, String date, int likes) {
         this.id = id;
         this.simpleUser = simpleUser;
         this.image = image;
         this.description = description;
         this.location = location;
         this.tags = tags;
+        this.date = date;
         this.likes = likes;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.date = LocalDateTime.now().toString();
-        }
     }
 
     public String getId() {

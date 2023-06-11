@@ -21,6 +21,8 @@ import com.projects.instaclient.model.Post;
 import com.projects.instaclient.service.RetrofitService;
 import com.projects.instaclient.view.fragments.profile.PostFragment;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +33,8 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
     private int cols;
 
     public ProfileRecAdapter(List<Post> list, LayoutInflater layoutInflater, FragmentActivity activity, int cols) {
+        list.sort(Comparator.comparing(Post::getDate));
+        Collections.reverse(list);
         this.list = list;
         this.layoutInflater = layoutInflater;
         this.activity = activity;
@@ -52,27 +56,28 @@ public class ProfileRecAdapter extends RecyclerView.Adapter<ProfileRecAdapter.Pr
         holder.setPost(post);
 
         // video or image
+        // after changes only play video image is visible on mp4 file
+        holder.playerView.setVisibility(View.GONE);
         if (post.getImage().getUrl().contains("mp4")) {
             Glide.with(holder.imageView.getContext())
                     .load(R.drawable.play_video)
                     .into(holder.imageView);
-            holder.imageView.setOnClickListener(v -> {
-                ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
-                holder.playerView.setPlayer(player);
-                MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
-                player.addMediaItem(firstItem);
-                player.prepare();
-                player.setPlayWhenReady(false);
-
-                holder.imageView.setVisibility(View.GONE);
-                holder.playerView.setVisibility(View.VISIBLE);
-            });
+//            holder.imageView.setOnClickListener(v -> {
+//                ExoPlayer player = new ExoPlayer.Builder(layoutInflater.getContext()).build();
+//                holder.playerView.setPlayer(player);
+//                MediaItem firstItem = MediaItem.fromUri("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl());
+//                player.addMediaItem(firstItem);
+//                player.prepare();
+//                player.setPlayWhenReady(false);
+//
+//                holder.imageView.setVisibility(View.GONE);
+//                holder.playerView.setVisibility(View.VISIBLE);
+//            });
         }
         else {
             Glide.with(holder.imageView.getContext())
                     .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
                     .into(holder.imageView);
-            holder.playerView.setVisibility(View.GONE);
         }
     }
 

@@ -37,7 +37,7 @@ public class HomeRecAdapter extends RecyclerView.Adapter<HomeRecAdapter.HomeView
     private FragmentManager fragmentManager;
 
     public HomeRecAdapter(List<Post> list, LayoutInflater layoutInflater, FragmentManager fragmentManager) {
-        list.sort(Comparator.comparing(Post::getId)); // sort by creation date
+        list.sort(Comparator.comparing(Post::getDate));
         Collections.reverse(list);
         this.list = list;
         this.layoutInflater = layoutInflater;
