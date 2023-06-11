@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.projects.instaclient.R;
 import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentEditImageBinding;
 import com.projects.instaclient.helpers.Helpers;
@@ -90,6 +91,7 @@ public class EditImageFragment extends Fragment {
                         post.getImage().setUrl(response.body().getData().getUrl());
                         Glide.with(binding.editImageImageView.getContext())
                                 .load("http://" + RetrofitService.getServerHost() + "/api/" + post.getImage().getUrl())
+                                .error(R.drawable.empty_image)
                                 .into(binding.editImageImageView);
                     }
                     else {

@@ -15,6 +15,14 @@ public class Post {
     private int likes;
     private String date;
 
+    // only for sending edit post patch
+    public Post(String id, String description, String location, ArrayList<String> tags) {
+        this.id = id;
+        this.description = description;
+        this.location = location;
+        this.tags = tags;
+    }
+
     public Post(String id, SimpleUser simpleUser, Image image, String description, String location, ArrayList<String> tags, int likes) {
         this.id = id;
         this.simpleUser = simpleUser;

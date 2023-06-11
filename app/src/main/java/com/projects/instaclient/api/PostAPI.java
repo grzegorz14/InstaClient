@@ -64,6 +64,10 @@ public interface PostAPI {
     @GET("api/posts/user/{id}")
     Call<ResponseWrapper<ArrayList<Post>>> getAllPostOfUserById(@Path("id") String id);
 
+    @PATCH("api/posts")
+    Call<ResponseWrapper<Post>> patchPostData(@Header("Authorization") String token,
+                                                 @Body Post post);
+
     @GET("api/users")
     Call<ResponseWrapper<ArrayList<User>>> getAllUsers();
 

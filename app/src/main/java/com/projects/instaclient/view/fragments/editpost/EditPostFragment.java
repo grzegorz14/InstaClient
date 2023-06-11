@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.TextInputLayout;
 import com.projects.instaclient.R;
+import com.projects.instaclient.api.PostAPI;
 import com.projects.instaclient.databinding.FragmentEditPostBinding;
 import com.projects.instaclient.helpers.Helpers;
 import com.projects.instaclient.model.Post;
@@ -207,46 +208,32 @@ public class EditPostFragment extends Fragment {
     private void editPost() {
         Helpers.replaceMainFragment(getParentFragmentManager(), new NavigationFragment(new HomeFragment()));
 
-//        File file = new File(imageUri);
+        Post editPost = new Post(
+                post.getId(),
+                binding.descriptionEditPostEditText.getText().toString(),
+                post.getLocation(),
+                post.getTags());
 
-//        RequestBody fileRequest;
-//        MultipartBody.Part filePart;
-//        if (imageUri.contains(".mp4")) {
-//            fileRequest = RequestBody.create(MediaType.parse("video/*"), file);
-//            filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
-//        }
-//        else {
-//            fileRequest = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-//            filePart = MultipartBody.Part.createFormData("file", file.getName(), fileRequest);
-//        }
-//
-//        AddPostDataRequest addPostDataRequest = new AddPostDataRequest(
-//                binding.descriptionNewPostEditText.getText().toString(),
-//                location,
-//                tags);
-//
-//        RetrofitService retrofitService = RetrofitService.getInstance();
-//        PostAPI postAPI = retrofitService.getPostAPI();
-//        Call<ResponseWrapper<Post>> call = postAPI.postNewPost(retrofitService.getAuthToken(),
-//                addPostDataRequest,
-//                filePart);
-//
-//        call.enqueue(new Callback<ResponseWrapper<Post>>() {
-//            @Override
-//            public void onResponse(Call<ResponseWrapper<Post>> call, Response<ResponseWrapper<Post>> response) {
-//                if (!response.isSuccessful()) {
-//                    Log.d("xxx", String.valueOf(response.code()));
-//                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
-//                } else {
-//                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ResponseWrapper<Post>> call, Throwable t) {
-//                Log.d("xxx", t.getMessage());
-//                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-//            }
-//        });
+        RetrofitService retrofitService = RetrofitService.getInstance();
+        PostAPI postAPI = retrofitService.getPostAPI();
+        Call<ResponseWrapper<Post>> call = postAPI.patchPostData(retrofitService.getAuthToken(), editPost);
+
+        call.enqueue(new Callback<ResponseWrapper<Post>>() {
+            @Override
+            public void onResponse(Call<ResponseWrapper<Post>> call, Response<ResponseWrapper<Post>> response) {
+                if (!response.isSuccessful()) {
+                    Log.d("xxx", String.valueOf(response.code()));
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseWrapper<Post>> call, Throwable t) {
+                Log.d("xxx", t.getMessage());
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
