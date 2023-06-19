@@ -1,4 +1,4 @@
-![image](https://github.com/grzegorz14/InstaClient/assets/92259597/379cd7d7-ed12-4adc-98d0-dd051db9aff7)# InstaClient android
+# InstaClient android
 
 This project is a simplified copy of Instagram mobile app. All data comes from InstaAPI server (other project in my repos) by Retrofit communication.
 App allows to:
